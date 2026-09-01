@@ -1,0 +1,317 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0d1b2e;
+  --color-secondary: #9CAF88;
+  --color-tertiary: #F5F3EB;
+  --color-primary-light: #162840;
+  --color-secondary-light: #b8c9a6;
+  --color-secondary-dark: #526442;
+  --color-secondary-bg: #EDF5E4;
+
+  --font-serif: var(--font-noto-serif), "Georgia", "Times New Roman", serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN THEME — Xura Hotel CMS Edition
+   Scoped under .admin-root to avoid polluting public site styles.
+   Dark mode toggled via .dark ancestor (next-themes class strategy).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ADMIN LIGHT MODE — Warm cream surfaces · Dark sage accent
+   Derived from: primary #0d1b2e (navy) · secondary #9CAF88 (sage) · tertiary #F5F3EB (cream)
+   ───────────────────────────────────────────────────────────────────────────── */
+.admin-root {
+  /* Surfaces — warm cream derived from #F5F3EB */
+  --adm-background:          44 22% 96%;
+  --adm-foreground:          215 54% 13%;
+  --adm-card:                44 30% 99%;
+  --adm-card-foreground:     215 54% 13%;
+  --adm-popover:             44 30% 99%;
+  --adm-popover-foreground:  215 54% 13%;
+
+  /* Brand — dark sage #526442 as primary interactive on cream */
+  --adm-primary:             95 20% 34%;
+  --adm-primary-foreground:  44 30% 99%;
+  --adm-secondary:           100 22% 90%;
+  --adm-secondary-foreground:95 20% 34%;
+
+  /* Neutrals — sage-tinted */
+  --adm-muted:               100 18% 93%;
+  --adm-muted-foreground:    215 18% 44%;
+  --adm-accent:              100 22% 91%;
+  --adm-accent-foreground:   215 54% 13%;
+
+  /* Semantic */
+  --adm-destructive:         4 68% 52%;
+  --adm-destructive-foreground: 0 0% 100%;
+  --adm-success:             95 35% 36%;
+  --adm-success-foreground:  0 0% 100%;
+  --adm-warning:             38 88% 48%;
+  --adm-warning-foreground:  0 0% 100%;
+
+  /* Forms */
+  --adm-border:              100 14% 84%;
+  --adm-input:               100 14% 84%;
+  --adm-ring:                95 20% 34%;
+
+  /* Chart palette — sage/navy family */
+  --adm-chart-1:             95 20% 34%;
+  --adm-chart-2:             89 19% 55%;
+  --adm-chart-3:             100 20% 70%;
+  --adm-chart-4:             215 40% 32%;
+  --adm-chart-5:             44 22% 65%;
+
+  /* Sidebar — slightly deeper cream */
+  --adm-sidebar:             44 16% 92%;
+  --adm-sidebar-foreground:  215 54% 13%;
+  --adm-sidebar-primary:     95 20% 34%;
+  --adm-sidebar-primary-foreground: 44 30% 99%;
+  --adm-sidebar-accent:      100 22% 87%;
+  --adm-sidebar-accent-foreground:  215 54% 13%;
+  --adm-sidebar-border:      100 14% 82%;
+
+  /* Shadows — warm sage-tinted */
+  --adm-shadow-xs: 0 1px 3px 0 hsl(100 20% 20% / 0.06), 0 1px 2px -1px hsl(100 20% 20% / 0.04);
+  --adm-shadow-sm: 0 2px 6px 0 hsl(100 20% 20% / 0.08), 0 1px 3px -1px hsl(100 20% 20% / 0.06);
+  --adm-shadow-md: 0 4px 14px 0 hsl(100 20% 20% / 0.10), 0 2px 5px -1px hsl(100 20% 20% / 0.07);
+  --adm-shadow-lg: 0 8px 24px 0 hsl(100 20% 20% / 0.11), 0 4px 8px -2px hsl(100 20% 20% / 0.08);
+  --adm-shadow-xl: 0 16px 40px 0 hsl(100 20% 20% / 0.14), 0 6px 12px -3px hsl(100 20% 20% / 0.09);
+
+  /* Layout */
+  --adm-radius:         0.625rem;
+  --adm-header-height:  4rem;
+  --adm-sidebar-width:  16rem;
+  --adm-font-sans:      Inter, system-ui, sans-serif;
+  --adm-font-mono:      "JetBrains Mono", monospace;
+  --adm-logo-filter:    none;
+
+  background-color: hsl(var(--adm-background));
+  color: hsl(var(--adm-foreground));
+  font-family: var(--adm-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ADMIN DARK MODE — Deep navy surfaces · Sage green accent
+   Derived from: primary #0d1b2e (navy) · secondary #9CAF88 (sage) · tertiary #F5F3EB (cream)
+   ───────────────────────────────────────────────────────────────────────────── */
+.dark .admin-root {
+  /* Surfaces — deep navy family derived from #0d1b2e */
+  --adm-background:          215 55% 8%;
+  --adm-foreground:          44 22% 93%;
+  --adm-card:                215 48% 11%;
+  --adm-card-foreground:     44 22% 93%;
+  --adm-popover:             215 48% 11%;
+  --adm-popover-foreground:  44 22% 93%;
+
+  /* Brand — sage green #9CAF88 shines on deep navy */
+  --adm-primary:             89 19% 60%;
+  --adm-primary-foreground:  215 55% 8%;
+  --adm-secondary:           215 40% 17%;
+  --adm-secondary-foreground:100 20% 72%;
+
+  /* Neutrals — navy-tinted muted tones */
+  --adm-muted:               215 44% 14%;
+  --adm-muted-foreground:    44 12% 57%;
+  --adm-accent:              215 42% 17%;
+  --adm-accent-foreground:   44 22% 93%;
+
+  /* Semantic */
+  --adm-destructive:         4 68% 58%;
+  --adm-destructive-foreground: 0 0% 100%;
+  --adm-success:             89 40% 46%;
+  --adm-success-foreground:  0 0% 100%;
+  --adm-warning:             38 88% 54%;
+  --adm-warning-foreground:  215 55% 8%;
+
+  /* Forms */
+  --adm-border:              215 38% 21%;
+  --adm-input:               215 38% 21%;
+  --adm-ring:                89 19% 60%;
+
+  /* Chart palette — sage/navy family */
+  --adm-chart-1:             89 19% 60%;
+  --adm-chart-2:             100 20% 72%;
+  --adm-chart-3:             44 22% 78%;
+  --adm-chart-4:             215 35% 36%;
+  --adm-chart-5:             89 19% 46%;
+
+  /* Sidebar — darkest navy */
+  --adm-sidebar:             215 56% 7%;
+  --adm-sidebar-foreground:  44 22% 93%;
+  --adm-sidebar-primary:     89 19% 60%;
+  --adm-sidebar-primary-foreground: 215 55% 8%;
+  --adm-sidebar-accent:      215 44% 14%;
+  --adm-sidebar-accent-foreground:  44 22% 93%;
+  --adm-sidebar-border:      215 40% 18%;
+
+  /* Shadows — deep navy-tinted */
+  --adm-shadow-xs: 0 1px 3px 0 hsl(215 55% 4% / 0.35), 0 1px 2px -1px hsl(215 55% 4% / 0.25);
+  --adm-shadow-sm: 0 2px 6px 0 hsl(215 55% 4% / 0.45), 0 1px 3px -1px hsl(215 55% 4% / 0.35);
+  --adm-shadow-md: 0 4px 14px 0 hsl(215 55% 4% / 0.50), 0 2px 5px -1px hsl(215 55% 4% / 0.40);
+  --adm-shadow-lg: 0 8px 24px 0 hsl(215 55% 4% / 0.55), 0 4px 8px -2px hsl(215 55% 4% / 0.45);
+  --adm-shadow-xl: 0 16px 40px 0 hsl(215 55% 4% / 0.65), 0 6px 12px -3px hsl(215 55% 4% / 0.55);
+
+  --adm-logo-filter: brightness(0) invert(1);
+
+  background-color: hsl(var(--adm-background));
+  color: hsl(var(--adm-foreground));
+}
+
+/* Admin custom scrollbar */
+.admin-root ::-webkit-scrollbar { width: 6px; height: 6px; }
+.admin-root ::-webkit-scrollbar-track { background: transparent; }
+.admin-root ::-webkit-scrollbar-thumb { background: hsl(var(--adm-border)); border-radius: 999px; }
+.admin-root ::-webkit-scrollbar-thumb:hover { background: hsl(var(--adm-muted-foreground)); }
+
+/* Admin shimmer skeleton animation */
+@keyframes adm-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.admin-root .adm-skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--adm-muted)) 25%,
+    hsl(var(--adm-accent)) 37%,
+    hsl(var(--adm-muted)) 63%
+  );
+  background-size: 400% 100%;
+  animation: adm-shimmer 2.5s infinite linear;
+  border-radius: calc(var(--adm-radius) - 2px);
+}
+
+/* Admin theme transitions */
+.admin-root * {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.1s ease;
+}
+
+/* Admin focus ring override */
+.admin-root :focus-visible {
+  outline: 2px solid hsl(var(--adm-ring));
+  outline-offset: 2px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.bb_resbox input,
+.bb_resbox select,
+.bb_resbox button {
+  appearance: auto;
+}
+
+/* wrapper */
+#bb_resBookingBox {
+  width: 100%;
+}
+
+/* main container */
+#bb_resBookingBox .bb_resbox {
+  width: 100% !important;
+  background: white !important;
+  border-radius: 24px !important;
+  padding: 24px !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22) !important;
+}
+
+/* horizontal layout */
+#bb_resBookingBox table,
+#bb_resBookingBox tbody,
+#bb_resBookingBox tr {
+  width: 100%;
+}
+
+#bb_resBookingBox tr {
+  display: flex !important;
+  align-items: end;
+  gap: 16px;
+}
+
+/* labels */
+#bb_resBookingBox label,
+#bb_resBookingBox td {
+  font-family: Inter, sans-serif !important;
+  color: #0d1b2e !important;
+  font-weight: 600 !important;
+}
+
+/* inputs */
+#bb_resBookingBox input,
+#bb_resBookingBox select {
+  height: 52px !important;
+  border-radius: 14px !important;
+  border: 1px solid #e5e7eb !important;
+  background: #f9fafb !important;
+  padding: 0 18px !important;
+  font-size: 14px !important;
+  width: 100% !important;
+}
+
+/* button */
+#bb_resBookingBox input[type="submit"],
+#bb_resBookingBox button {
+  height: 52px !important;
+  border-radius: 14px !important;
+  background: #0d1b2e !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 700 !important;
+  padding: 0 28px !important;
+  transition: 0.2s ease;
+}
+
+#bb_resBookingBox input[type="submit"]:hover,
+#bb_resBookingBox button:hover {
+  background: #162840 !important;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 118px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--color-tertiary);
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  overflow-anchor: none;
+}
+
+/* ── Custom scrollbar — thin Mac-style in primary color ───────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 999px;
+  opacity: 0.6;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-light);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+}
