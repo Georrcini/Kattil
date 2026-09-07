@@ -4,44 +4,44 @@ import type { IFooter } from "@/lib/models/Footer";
 
 // Static fallback used while DB loads or if no footer document exists yet
 const STATIC_FALLBACK = {
-  logo:        "/assets/logo.png",
-  headline:    "Experience luxury hospitality with premium comfort, elegant spaces, and world-class service designed for unforgettable stays.",
+  logo: "/assets/logo.png",
+  headline: "Experience luxury hospitality with premium comfort, elegant spaces, and world-class service designed for unforgettable stays.",
   description: "",
-  tagline:     "The Homely Reset",
-  copyright:   `© ${new Date().getFullYear()} Kattil. All Rights Reserved.`,
+  tagline: "The Homely Reset",
+  copyright: `© ${new Date().getFullYear()} Kattil. All Rights Reserved.`,
   footerLinks: [
     {
       section: "NAVIGATION",
       order: 0,
       links: [
-        { label: "Home",       href: "/",           newTab: false, order: 0 },
-        { label: "About Us",   href: "/about-us",   newTab: false, order: 1 },
-        { label: "Rooms",      href: "/rooms",      newTab: false, order: 2 },
-        { label: "Gallery",    href: "/gallery",    newTab: false, order: 3 },
-        { label: "Blog",       href: "/blog",       newTab: false, order: 4 },
-        { label: "Contact",    href: "/contact-us", newTab: false, order: 5 },
+        { label: "Home", href: "/", newTab: false, order: 0 },
+        { label: "About Us", href: "/about-us", newTab: false, order: 1 },
+        { label: "Rooms", href: "/rooms", newTab: false, order: 2 },
+        { label: "Gallery", href: "/gallery", newTab: false, order: 3 },
+        { label: "Blog", href: "/blog", newTab: false, order: 4 },
+        { label: "Contact", href: "/contact-us", newTab: false, order: 5 },
       ],
     },
     {
       section: "NAVIGATION",
       order: 1,
       links: [
-        { label: "Home",       href: "/",           newTab: false, order: 0 },
-        { label: "About Us",   href: "/about-us",   newTab: false, order: 1 },
-        { label: "Rooms",      href: "/rooms",      newTab: false, order: 2 },
-        { label: "Gallery",    href: "/gallery",    newTab: false, order: 3 },
-        { label: "Blog",       href: "/blog",       newTab: false, order: 4 },
-        { label: "Contact",    href: "/contact-us", newTab: false, order: 5 },
+        { label: "Home", href: "/", newTab: false, order: 0 },
+        { label: "About Us", href: "/about-us", newTab: false, order: 1 },
+        { label: "Rooms", href: "/rooms", newTab: false, order: 2 },
+        { label: "Gallery", href: "/gallery", newTab: false, order: 3 },
+        { label: "Blog", href: "/blog", newTab: false, order: 4 },
+        { label: "Contact", href: "/contact-us", newTab: false, order: 5 },
       ],
     },
     {
       section: "LEGAL",
       order: 2,
       links: [
-        { label: "Privacy Policy",    href: "/privacy-policy",    newTab: false, order: 0 },
-        { label: "Refund Policy",     href: "/refund-policy",     newTab: false, order: 1 },
-        { label: "Terms & Conditions",href: "/terms-conditions",  newTab: false, order: 2 },
-        { label: "FAQs",              href: "/faqs",              newTab: false, order: 3 },
+        { label: "Privacy Policy", href: "/privacy-policy", newTab: false, order: 0 },
+        { label: "Refund Policy", href: "/refund-policy", newTab: false, order: 1 },
+        { label: "Terms & Conditions", href: "/terms-conditions", newTab: false, order: 2 },
+        { label: "FAQs", href: "/faqs", newTab: false, order: 3 },
       ],
     },
   ],
@@ -87,13 +87,12 @@ const STATIC_FALLBACK = {
       ],
     },
   ],
-  locations: [],
 };
 
 export async function GET() {
   try {
     await connectDB();
-    const raw  = await Footer.findOne().lean() as Partial<IFooter> | null;
+    const raw = await Footer.findOne().lean() as Partial<IFooter> | null;
     const data = raw ?? STATIC_FALLBACK;
     return Response.json({ success: true, data });
   } catch {
