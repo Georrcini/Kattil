@@ -52,15 +52,15 @@ export interface AmenityItem {
 
 // ─── Fallback data (mirrors seed) ────────────────────────────────────────────
 const DEFAULT_AMENITIES: AmenityItem[] = [
-  { name: "Bunk Bed",         icon: "BedDouble",      order: 0 },
-  { name: "Locker",           icon: "LockKeyhole",    order: 1 },
-  { name: "High Speed Wi-Fi", icon: "Wifi",           order: 2 },
-  { name: "Paid Breakfast",   icon: "Coffee",         order: 3 },
-  { name: "Free Parking",     icon: "SquareParking",  order: 4 },
-  { name: "Laundry Service",  icon: "WashingMachine", order: 5 },
-  { name: "Pet Friendly",     icon: "PawPrint",       order: 6 },
-  { name: "Kitchen",          icon: "ChefHat",        order: 7 },
-  { name: "Airport Shuttle",  icon: "Plane",          order: 8 },
+  { name: "Bunk Bed", icon: "BedDouble", order: 0 },
+  { name: "Locker", icon: "LockKeyhole", order: 1 },
+  { name: "High Speed Wi-Fi", icon: "Wifi", order: 2 },
+  { name: "Paid Breakfast", icon: "Coffee", order: 3 },
+  { name: "Free Parking", icon: "SquareParking", order: 4 },
+  { name: "Laundry Service", icon: "WashingMachine", order: 5 },
+  { name: "Pet Friendly", icon: "PawPrint", order: 6 },
+  { name: "Kitchen", icon: "ChefHat", order: 7 },
+  { name: "Airport Shuttle", icon: "Plane", order: 8 },
 ];
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -95,9 +95,9 @@ export default function AmenitiesSection({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-160px 0px 0px 0px" }}
           transition={{ duration: 0.7, ease: EASE }}
-          className="text-center mb-7 md:mb-10 lg:mb-16"
+          className="text-center mb-10"
         >
-          <p className="font-sans text-[12px] font-semibold uppercase tracking-[0.25em] text-[#526442] mb-3">
+          <p className="font-sans text-[12px] font-semibold uppercase tracking-[0.25em] text-[#526442] mb-4">
             {eyebrow}
           </p>
           <h2 className="font-serif text-3xl md:text-5xl font-light text-[#000000] tracking-tight leading-tight">

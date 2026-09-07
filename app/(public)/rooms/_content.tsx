@@ -5,7 +5,23 @@ import { usePageView } from "@/hooks/usePageView";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
-import type { CityTab, RoomItem } from "./page";
+
+export interface RoomItem {
+  _id: string;
+  name: string;
+  slug: string;
+  images: string[];
+  link?: string;
+  description?: string;
+  city: { name: string; slug: string };
+}
+
+export interface CityTab {
+  _id: string;
+  name: string;
+  slug: string;
+  label?: string;
+}
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -62,7 +78,7 @@ function RoomCard({ room, index, branch }: { room: RoomItem; index: number; bran
       </div>
 
       <div className="flex flex-col gap-2 md:gap-2.5">
-        <h3 className="font-serif text-xl font-semibold text-primary leading-8">{room.name}</h3>
+        <h3 className="font-sans text-xl font-semibold text-primary leading-8">{room.name}</h3>
 
         {room.link && (
           <motion.div className="relative overflow-hidden mt-2 md:mt-3 rounded-lg bg-primary w-full cursor-pointer" whileHover="hover" initial="rest" animate="rest">
@@ -127,7 +143,7 @@ export default function RoomsContent({
         <div className="mx-auto max-w-480 px-5 md:px-8 lg:px-20">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-0">
             <div>
-              <h1 className="font-serif text-2xl md:text-3xl font-normal text-white leading-[1.05] tracking-tight mb-3 md:mb-6">
+              <h1 className="font-serif text-2xl md:text-3xl font-normal text-white leading-[1.05] tracking-tight mb-10">
                 <AnimatedWords text="Refined Living" delay={0.12} />
               </h1>
 

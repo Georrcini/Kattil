@@ -187,7 +187,7 @@ export default function GalleryContent({
         <div className="mx-auto max-w-480 px-5 md:px-8 lg:px-20">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-0">
             <div>
-              <h1 className="font-serif text-3xl md:text-4xl font-normal text-white leading-[1.05] tracking-tight mb-3 md:mb-6">
+              <h1 className="font-serif text-3xl md:text-4xl font-normal text-white leading-[1.05] tracking-tight mb-10">
                 <AnimatedWords text="Our Spaces" delay={0.12} />
               </h1>
 

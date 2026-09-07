@@ -93,16 +93,16 @@ function SectionCard({ section, index }: { section: (typeof sections)[0]; index:
       {/* Number accent */}
       <div className="shrink-0 flex items-start">
         <span
-          className="font-serif text-[4.5rem] leading-none font-light text-primary/8
-            select-none transition-colors duration-400 group-hover:text-primary/14"
+          className="font-sans text-[3.8rem] md:text-[4.5rem] leading-none font-light text-primary/10
+            select-none transition-colors duration-400 group-hover:text-primary/20"
         >
           {section.number}
         </span>
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-3 pt-1">
-        <h3 className="font-serif text-xl md:text-2xl font-medium text-primary leading-snug tracking-tight">
+      <div className="flex flex-col gap-4 pt-1">
+        <h3 className="font-sans text-lg md:text-xl font-semibold text-primary leading-snug tracking-tight">
           {section.title}
         </h3>
         <div
@@ -136,9 +136,13 @@ export default function PrivacyPolicyPage() {
             Legal
           </motion.p>
 
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.6rem] font-normal
-            text-white leading-[1.1] tracking-tight mb-7 max-w-3xl">
-            <AnimatedWords text="Your Privacy, Our Promise." delay={0.2} />
+          <h1 className="text-white text-[34px] sm:text-[42px] md:text-[48px] lg:text-[52px] leading-[1.1] tracking-tight mb-10 max-w-3xl">
+            <span className="font-sans font-semibold">
+              <AnimatedWords text="Your Privacy," delay={0.2} />
+            </span>{" "}
+            <span className="font-serif italic font-normal">
+              <AnimatedWords text="Our Promise." delay={0.35} />
+            </span>
           </h1>
 
           <motion.p

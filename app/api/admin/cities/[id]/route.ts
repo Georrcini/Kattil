@@ -29,7 +29,11 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (!parsed.success) return apiError(parsed.error.issues[0].message, 400);
 
     const updateData: Record<string, unknown> = { ...parsed.data };
-    if (parsed.data.name) updateData.slug = slugify(parsed.data.name);
+    if (parsed.data.slug?.trim()) {
+      updateData.slug = slugify(parsed.data.slug);
+    } else if (parsed.data.name) {
+      updateData.slug = slugify(parsed.data.name);
+    }
 
     const city = await City.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
     if (!city) return apiError("City not found", 404);

@@ -136,7 +136,7 @@ export default function FAQsContent({ faqs }: { faqs: FaqItem[] }) {
           </motion.p>
 
           <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.6rem] font-normal
-            text-white leading-[1.1] tracking-tight mb-7 max-w-3xl">
+            text-white leading-[1.1] tracking-tight mb-10 max-w-3xl">
             <AnimatedWords text="Questions, Answered." delay={0.2} />
           </h1>
 
@@ -228,7 +228,7 @@ export default function FAQsContent({ faqs }: { faqs: FaqItem[] }) {
               justify-between gap-6 p-7 md:p-9 rounded-2xl bg-secondary/10 border border-secondary/20"
           >
             <div>
-              <h3 className="font-serif text-xl md:text-2xl font-medium text-primary mb-2">
+              <h3 className="font-serif text-xl md:text-2xl font-medium text-primary mb-10">
                 Still have questions?
               </h3>
               <p className="font-sans text-[15px] text-primary/60 leading-relaxed">

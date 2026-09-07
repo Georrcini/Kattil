@@ -15,7 +15,7 @@ const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
 const VALID_FOLDERS = new Set([
   "gallery", "blog", "rooms", "footer", "sidebar", "social", "faq", "general",
-  "madurai-gallery", "chennai-gallery",
+  "destinations", "cities", "madurai-gallery", "chennai-gallery",
 ]);
 
 // Gallery subfolders go to /public/images/ — everything else to /public/uploads/

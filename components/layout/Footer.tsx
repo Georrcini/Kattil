@@ -11,27 +11,27 @@ const containerVariants = {
   visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
 };
 const columnVariants = {
-  hidden:   { opacity: 0, y: 28 },
-  visible:  { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } },
+  hidden: { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } },
 };
 const topVariants = {
-  hidden:   { opacity: 0, y: 20 },
-  visible:  { opacity: 1, y: 0, transition: { duration: 0.75, ease: EASE } },
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: EASE } },
 };
 
 // ── Types passed from layout ──────────────────────────────────────────────────
-export interface FooterLink     { label: string; href: string; newTab: boolean; order: number }
-export interface FooterSection  { section: string; order: number; links: FooterLink[] }
-export interface FooterSocial   { label: string; url: string; iconName: string; iconImageUrl: string; bgColor: string; visible: boolean }
+export interface FooterLink { label: string; href: string; newTab: boolean; order: number }
+export interface FooterSection { section: string; order: number; links: FooterLink[] }
+export interface FooterSocial { label: string; url: string; iconName: string; iconImageUrl: string; bgColor: string; visible: boolean }
 export interface FooterLocation { city: string; address: string; phone?: string; email?: string }
 export interface FooterProps {
-  logo:        string;
-  headline:    string;
+  logo: string;
+  headline: string;
   description: string;
-  copyright:   string;
+  copyright: string;
   footerLinks: FooterSection[];
   socialLinks: FooterSocial[];
-  locations?:  FooterLocation[];
+  locations?: FooterLocation[];
 }
 
 // ── Social icon text fallback ─────────────────────────────────────────────────
@@ -40,33 +40,37 @@ function SocialIconFallback({ name }: { name: string }) {
     instagram: "IG", facebook: "FB", twitter: "X", linkedin: "LI",
     youtube: "YT", whatsapp: "WA", telegram: "TG", googlemaps: "G",
   };
-  return <span className="text-[10px] font-black">{map[name] ?? name.slice(0, 2).toUpperCase()}</span>;
+  return <span className="text-[12px] font-bold text-white tracking-tight">{map[name?.toLowerCase()] ?? (name ? name.slice(0, 2).toUpperCase() : "IG")}</span>;
 }
 
-// ── Location block — matches original structure ───────────────────────────────
+// ── Location block — matches Head Office structure ───────────────────────────
 function LocationBlock({ location }: { location: FooterLocation }) {
   return (
-    <address className="not-italic space-y-4">
-      <p className="text-[15px] sm:text-base text-[#E6E2D4CC]/80 leading-relaxed">
+    <address className="not-italic space-y-6">
+      <p className="text-[14px] sm:text-[15px] text-[#E6E2D4CC]/80 leading-relaxed max-w-[260px]">
         {location.address}
       </p>
       {location.phone && (
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-white">Phone:</p>
+        <div>
+          <h5 className="text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase text-white mb-2">
+            PHONE
+          </h5>
           <a
             href={`tel:${location.phone.replace(/\s/g, "")}`}
-            className="block text-[15px] sm:text-base text-[#E6E2D4CC]/70 hover:text-white transition-colors duration-200"
+            className="block text-[14px] sm:text-[15px] text-[#E6E2D4CC]/80 hover:text-white transition-colors duration-200"
           >
             {location.phone}
           </a>
         </div>
       )}
       {location.email && (
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-white">Mail:</p>
+        <div>
+          <h5 className="text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase text-white mb-2">
+            MAIL
+          </h5>
           <a
             href={`mailto:${location.email}`}
-            className="block text-[15px] sm:text-base text-[#E6E2D4CC]/70 hover:text-white transition-colors duration-200 break-all"
+            className="block text-[14px] sm:text-[15px] text-[#E6E2D4CC]/80 hover:text-white transition-colors duration-200 break-all"
           >
             {location.email}
           </a>
@@ -84,10 +88,10 @@ export default function Footer({
 
   const visibleSocial = socialLinks.filter((s) => s.visible);
   const sortedSections = [...footerLinks].sort((a, b) => a.order - b.order);
-  const visibleLocations = locations?.filter((l) => l.city && l.address) ?? [];
+  const visibleLocations = locations?.filter((l) => l.address) ?? [];
 
   return (
-    <footer ref={ref} className="relative overflow-hidden bg-primary text-white">
+    <footer ref={ref} className="relative overflow-hidden bg-primary text-white font-sans">
       <div
         className="absolute inset-0 z-0 pointer-events-none"
         style={{ backgroundImage: "url('/assets/overlay.png')", backgroundPosition: "center", backgroundSize: "cover", opacity: 0.8 }}
@@ -101,12 +105,17 @@ export default function Footer({
             <img src={logo} alt="Kattil" className="h-20 sm:h-24 lg:h-28 object-contain mb-5" />
           )}
           {headline && (
-            <p className="font-serif text-sm sm:text-lg lg:text-[30px] text-[#E6E2D4E5]/90 max-w-5xl leading-[1.3]">
+            <p
+              className="font-sans font-normal text-[18px] sm:text-[24px] md:text-[28px] lg:text-[34px] leading-tight lg:leading-[40px] tracking-normal text-center max-w-[1080px] mx-auto"
+              style={{
+                color: "rgba(230, 226, 212, 0.8082)",
+              }}
+            >
               {headline}
             </p>
           )}
           {description && (
-            <p className="mt-3 text-sm text-white/60 max-w-2xl leading-relaxed">{description}</p>
+            <p className="mt-3 text-sm text-white/60 max-w-2xl leading-relaxed font-sans">{description}</p>
           )}
         </motion.div>
 
@@ -117,22 +126,22 @@ export default function Footer({
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-10 lg:gap-12"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8 sm:gap-10 md:gap-12 xl:gap-[90px] gap-y-10"
         >
           {/* Navigation + Legal (and any other CMS sections) */}
-          {sortedSections.map((section) => (
-            <motion.div key={section.section} variants={columnVariants}>
-              <h4 className="text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase text-white mb-4 sm:mb-5">
+          {sortedSections.map((section, idx) => (
+            <motion.div key={`${section.section}-${idx}`} variants={columnVariants}>
+              <h4 className="text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase text-white mb-4">
                 {section.section}
               </h4>
               <ul className="space-y-3">
                 {[...section.links].sort((a, b) => a.order - b.order).map((link) => (
-                  <li key={link.href}>
+                  <li key={link.label}>
                     <Link
                       href={link.href}
                       target={link.newTab ? "_blank" : undefined}
                       rel={link.newTab ? "noopener noreferrer" : undefined}
-                      className="group inline-block text-[15px] sm:text-base text-[#E6E2D4CC]/80 hover:text-white transition-colors duration-200"
+                      className="group inline-block text-[14px] sm:text-[15px] text-[#E6E2D4CC]/80 hover:text-white transition-colors duration-200"
                     >
                       <span className="relative">
                         {link.label}
@@ -145,49 +154,67 @@ export default function Footer({
             </motion.div>
           ))}
 
-          {/* Locations — one column per city, "Locations" header only on the first */}
-          {visibleLocations.map((loc, idx) => (
-            <motion.div key={loc.city} variants={columnVariants}>
-              {idx === 0 ? (
-                <h4 className="text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase text-white mb-4 sm:mb-5">
-                  Locations
+          {/* Head Office / Locations */}
+          {visibleLocations.length > 0 ? (
+            visibleLocations.slice(0, 1).map((loc) => (
+              <motion.div key={loc.city || "head-office"} variants={columnVariants}>
+                <h4 className="text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase text-white mb-4">
+                  HEAD OFFICE
                 </h4>
-              ) : (
-                /* Spacer aligns subsequent cities with the content row on xl */
-                <div className="hidden xl:block h-7" aria-hidden="true" />
-              )}
-              <LocationBlock location={loc} />
-            </motion.div>
-          ))}
-
-          {/* Social links */}
-          {visibleSocial.length > 0 && (
+                <LocationBlock location={loc} />
+              </motion.div>
+            ))
+          ) : (
             <motion.div variants={columnVariants}>
-              <h4 className="text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase text-white mb-4 sm:mb-5">
-                Social Links
+              <h4 className="text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase text-white mb-4">
+                HEAD OFFICE
               </h4>
-              <div className="flex flex-wrap gap-3">
-                {visibleSocial.map((social) => (
-                  <motion.a
-                    key={social.label}
-                    href={social.url}
-                    aria-label={social.label}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.08 }}
-                    whileTap={{ scale: 0.96 }}
-                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-white"
-                    style={{ background: social.bgColor }}
-                  >
-                    {social.iconImageUrl
-                      ? <img src={social.iconImageUrl} alt={social.label} className="h-5 w-5 object-contain" />
-                      : <SocialIconFallback name={social.iconName} />
-                    }
-                  </motion.a>
-                ))}
-              </div>
+              <LocationBlock
+                location={{
+                  city: "Madurai",
+                  address: "2nd St, Park Town, Bama Nagar, Madurai, Tamil Nadu 625017, India",
+                  phone: "+91 7358127921",
+                  email: "sadhu_burlington@live.com",
+                }}
+              />
             </motion.div>
           )}
+
+          {/* Social links */}
+          <motion.div variants={columnVariants}>
+            <h4 className="text-[11px] sm:text-[12px] font-bold tracking-[0.2em] uppercase text-white mb-4">
+              SOCIAL LINKS
+            </h4>
+            <div className="flex flex-wrap gap-3">
+              {(visibleSocial.length > 0 ? visibleSocial : [
+                {
+                  label: "Instagram",
+                  url: "https://www.instagram.com/kattilthehome",
+                  iconName: "instagram",
+                  iconImageUrl: "",
+                  bgColor: "linear-gradient(45deg,#833ab4,#fd1d1d,#fcb045)",
+                  visible: true,
+                }
+              ]).map((social) => (
+                <motion.a
+                  key={social.label}
+                  href={social.url}
+                  aria-label={social.label}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.96 }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-white shadow-md transition-transform"
+                  style={{ background: social.bgColor || "linear-gradient(45deg,#833ab4,#fd1d1d,#fcb045)" }}
+                >
+                  {social.iconImageUrl
+                    ? <img src={social.iconImageUrl} alt={social.label} className="h-5 w-5 object-contain" />
+                    : <SocialIconFallback name={social.iconName || "instagram"} />
+                  }
+                </motion.a>
+              ))}
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* Copyright */}

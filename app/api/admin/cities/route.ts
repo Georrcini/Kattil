@@ -33,9 +33,9 @@ export async function POST(request: NextRequest) {
     const parsed = citySchema.safeParse(body);
     if (!parsed.success) return apiError(parsed.error.issues[0].message, 400);
 
-    const slug = slugify(parsed.data.name);
+    const slug = parsed.data.slug?.trim() ? slugify(parsed.data.slug) : slugify(parsed.data.name);
     const existing = await City.findOne({ slug });
-    if (existing) return apiError("A city with this name already exists", 409);
+    if (existing) return apiError("A city/destination with this slug already exists", 409);
 
     const city = await City.create({ ...parsed.data, slug });
     return apiSuccess(city, 201);

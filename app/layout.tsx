@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Serif, Inter } from "next/font/google";
+import { Playfair_Display, Public_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import {
@@ -11,17 +11,18 @@ import {
   organizationJsonLd,
 } from "@/lib/seo";
 
-const notoSerif = Noto_Serif({
-  variable: "--font-noto-serif",
+const publicSans = Public_Sans({
+  variable: "--font-public-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair-display",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -79,8 +80,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${notoSerif.variable} ${inter.variable}`} suppressHydrationWarning>
-<body className="min-h-screen flex flex-col antialiased relative">
+    <html
+      lang="en"
+      className={`${playfairDisplay.variable} ${publicSans.variable}`}
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+    ><body className="min-h-screen flex flex-col antialiased relative">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

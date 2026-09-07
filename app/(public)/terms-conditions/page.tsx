@@ -117,14 +117,14 @@ function TermCard({ term, index }: { term: (typeof terms)[0]; index: number }) {
 
       <div className="flex flex-col md:flex-row gap-5 md:gap-8">
         {/* Number */}
-        <span className="font-serif text-5xl leading-none font-light text-primary/10 shrink-0
-          transition-colors duration-400 group-hover:text-secondary/30">
+        <span className="font-sans text-4xl md:text-5xl leading-none font-light text-primary/15 shrink-0
+          transition-colors duration-400 group-hover:text-secondary/50">
           {term.number}
         </span>
 
         {/* Content */}
         <div className="flex flex-col gap-4">
-          <h3 className="font-serif text-xl md:text-2xl font-medium text-primary tracking-tight">
+          <h3 className="font-sans text-lg md:text-xl font-semibold text-primary tracking-tight">
             {term.title}
           </h3>
           <ul className="flex flex-col gap-3">
@@ -163,9 +163,13 @@ export default function TermsConditionsPage() {
             Legal
           </motion.p>
 
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.6rem] font-normal
-            text-white leading-[1.1] tracking-tight mb-7 max-w-3xl">
-            <AnimatedWords text="Terms of Stay." delay={0.2} />
+          <h1 className="text-white text-[34px] sm:text-[42px] md:text-[48px] lg:text-[52px] leading-[1.1] tracking-tight mb-10 max-w-3xl">
+            <span className="font-sans font-semibold">
+              <AnimatedWords text="Terms of" delay={0.2} />
+            </span>{" "}
+            <span className="font-serif italic font-normal">
+              <AnimatedWords text="Stay." delay={0.32} />
+            </span>
           </h1>
 
           <motion.p

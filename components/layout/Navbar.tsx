@@ -1,20 +1,61 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { navLinks } from "@/lib/data";
+import DestinationsDropdown, { MobileDestinationsList } from "./destinations-dropdown";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+const isDestinationsRoute = (path: string) => {
+  return (
+    path.startsWith("/rooms") ||
+    path.startsWith("/destinations") ||
+    path.startsWith("/chennai") ||
+    path.startsWith("/coimbatore") ||
+    path.startsWith("/madurai")
+  );
+};
 
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileDestinationsOpen, setMobileDestinationsOpen] = useState(false);
+  const [destinationsOpen, setDestinationsOpen] = useState(false);
   const navRowRef = useRef<HTMLDivElement>(null);
-  const [navRowHeight, setNavRowHeight] = useState(72);
+  const [navRowHeight, setNavRowHeight] = useState(84);
+  const toggleDestinations = useCallback((e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setDestinationsOpen((prev) => !prev);
+  }, []);
+
+  useEffect(() => {
+    if (!destinationsOpen) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest("[data-destinations-menu]") && !target.closest("[data-destinations-trigger]")) {
+        setDestinationsOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setDestinationsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [destinationsOpen]);
 
   useEffect(() => {
     const measure = () => {
@@ -31,7 +72,10 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => { setMobileOpen(false); }, [pathname]);
+  useEffect(() => {
+    setMobileOpen(false);
+    setDestinationsOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -50,7 +94,7 @@ export default function Navbar() {
       <motion.div
         animate={{ height: mobileOpen ? "calc(100svh - 32px)" : navRowHeight }}
         transition={{ duration: 0.55, ease: EASE, delay: mobileOpen ? 0 : 0.15 }}
-        className="relative mx-auto overflow-hidden rounded-2xl border border-white/5 flex flex-col"
+        className="relative mx-auto overflow-hidden rounded-[12px] border border-white/5 flex flex-col"
         style={{
           backgroundColor: scrolled && !mobileOpen ? "rgba(13, 27, 46, 0.92)" : "#0d1b2e",
           backdropFilter: scrolled && !mobileOpen ? "blur(16px)" : "none",
@@ -70,27 +114,59 @@ export default function Navbar() {
         />
 
         {/* ── Nav row (always visible) ─────────────────────────────────────── */}
-        <div ref={navRowRef} className="relative z-10 shrink-0 flex items-center justify-between h-18 md:h-22 lg:h-23 px-5 md:px-8 lg:px-15">
+        <div ref={navRowRef} className="relative z-10 shrink-0 flex items-center justify-between h-[74px] sm:h-[82px] md:h-[90px] lg:h-[94px] px-5 md:px-8 lg:px-15">
 
           {/* Left navigation */}
-          <nav className="hidden lg:flex items-center gap-10 flex-1">
-            {navLinks.slice(0, 4).map((link) => {
-              const isActive = pathname === link.href;
+          <nav className="hidden lg:flex items-center gap-8 flex-1">
+            {[
+              { label: "Home", href: "/" },
+              { label: "Destinations", href: "/rooms" },
+              { label: "Partners", href: "/partners" },
+              { label: "Offering", href: "" },
+            ].map((link) => {
+              const isDestinations = link.label === "Destinations";
+              const isActive = isDestinations
+                ? isDestinationsRoute(pathname)
+                : link.href !== "" &&
+                  (link.href === "/"
+                    ? pathname === "/"
+                    : pathname.startsWith(link.href));
+
               return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`group relative uppercase text-[13px] leading-none tracking-[1.2px]
-                    transition-colors duration-200 ease-out hover:text-white
-                    ${isActive ? "text-white font-bold" : "text-[#CCCCCC] font-medium"}`}
-                  style={{ fontFamily: "Inter" }}
-                >
-                  {link.label}
-                  <span
-                    className={`absolute left-0 -bottom-1.5 h-px bg-white transition-all duration-250 ease-out
-                      ${isActive ? "w-full opacity-100" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-100"}`}
-                  />
-                </Link>
+                <div key={link.label} className="relative py-2">
+                  {isDestinations ? (
+                    <button
+                      type="button"
+                      data-destinations-trigger="true"
+                      onClick={toggleDestinations}
+                      className={`group relative !no-underline text-[14px] leading-[12px] tracking-normal transition-all duration-200 ease-out font-sans cursor-pointer hover:font-bold ${isActive || destinationsOpen
+                        ? "!text-[#D2E6BC] font-bold"
+                        : "text-[#DDDDDD] font-light hover:!text-[#D2E6BC]"
+                        }`}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        textDecoration: "none",
+                      }}
+                    >
+                      {link.label}
+                    </button>
+                  ) : (
+                    <Link
+                      href={link.href || "#"}
+                      className={`group relative !no-underline text-[14px] leading-[12px] tracking-normal transition-all duration-200 ease-out font-sans hover:font-bold ${isActive
+                        ? "!text-[#D2E6BC] font-bold"
+                        : "text-[#DDDDDD] font-light hover:!text-[#D2E6BC]"
+                        }`}
+                      style={{
+                        textDecoration: "none",
+                      }}
+                    >
+                      {link.label}
+                    </Link>
+                  )}
+                </div>
               );
             })}
           </nav>
@@ -103,23 +179,33 @@ export default function Navbar() {
             <img
               src="/assets/logo.png"
               alt="Kattil — The Homely Reset"
-              className="object-contain h-12 md:h-14.5 lg:h-17 transition-all duration-300"
+              className="object-contain h-12 md:h-14.5 lg:h-17 transition-all duration-300 drop-shadow-md"
             />
           </Link>
 
           {/* Right CTA */}
-          <div className="hidden lg:flex items-center justify-end flex-1">
+          <div className="hidden lg:flex items-center justify-end gap-6 flex-1">
             <Link
               href="/contact-us"
-              className="group relative overflow-hidden px-7 py-3.5 border border-white/30 rounded-md uppercase
-                text-white text-[13px] font-semibold tracking-[1.2px] leading-none
-                transition-all duration-400 ease-out hover:border-white hover:shadow-[0_0_24px_rgba(255,255,255,0.08)]"
-              style={{ fontFamily: "Inter" }}
+              className={`group relative text-[14px] leading-[12px] tracking-normal transition-all duration-200 ease-out font-sans hover:font-bold ${pathname === "/contact-us"
+                ? "!text-[#D2E6BC] font-bold"
+                : "text-[#DDDDDD] font-light hover:!text-[#D2E6BC]"
+                }`}
             >
-              <span className="absolute inset-0 bg-white scale-x-0 origin-left transition-transform duration-400 ease-out group-hover:scale-x-100" />
-              <span className="relative z-10 transition-colors duration-400 group-hover:text-[#0d1b2e]">
-                Contact us
-              </span>
+              Contact Us
+            </Link>
+            <Link
+              href="/rooms"
+              className="w-[122px] h-[40px]
+rounded-[6px]
+border-[1px] border-white/100
+px-6
+text-white text-[14px] leading-none font-light
+inline-flex items-center justify-center
+transition-all duration-300
+hover:border-white hover:bg-white hover:text-[#0d1b2e]
+shadow-sm active:scale-95 font-sans"         >
+              Book Now
             </Link>
           </div>
 
@@ -170,32 +256,53 @@ export default function Navbar() {
               className="lg:hidden relative z-10 flex flex-col flex-1 px-8 pb-10 border-t border-white/10"
             >
               {/* Links */}
-              <nav className="flex flex-col gap-7 mt-10">
-                {navLinks.map((link, index) => {
-                  const isActive = pathname === link.href;
+              <nav className="flex flex-col gap-6 mt-8">
+                {[
+                  { label: "Home", href: "/" },
+                  { label: "Destinations", href: "/rooms" },
+                  { label: "Partners", href: "/partners" },
+                  { label: "Offering", href: "" },
+                ].map((link, index) => {
+                  const isDestinations = link.label === "Destinations";
+                  const isActive = isDestinations
+                    ? isDestinationsRoute(pathname)
+                    : (link.href === "/" && pathname === "/") ||
+                      (link.href !== "" && link.href !== "/" && pathname.startsWith(link.href));
                   return (
                     <motion.div
-                      key={link.href}
+                      key={link.label}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 + index * 0.06, duration: 0.35, ease: EASE }}
-                      style={{ willChange: "transform, opacity" }}
                     >
-                      <Link
-                        href={link.href}
-                        className={`relative inline-block uppercase tracking-[2px] transition-colors duration-200
-                          text-[26px] sm:text-[32px]
-                          ${isActive ? "text-white font-bold" : "text-[#CCCCCC] font-medium"}`}
-                        style={{ fontFamily: "Inter" }}
-                      >
-                        {link.label}
-                        {isActive && (
-                          <motion.div
-                            layoutId="mobileActiveLine"
-                            className="absolute left-0 -bottom-2 h-0.5 w-full bg-white"
-                          />
-                        )}
-                      </Link>
+                      {isDestinations ? (
+                        <div>
+                          <button
+                            type="button"
+                            onClick={() => setMobileDestinationsOpen((prev) => !prev)}
+                            className={`flex items-center justify-between w-full text-left text-[24px] sm:text-[28px] font-sans focus:outline-none transition-all hover:font-bold ${
+                              isActive ? "text-emerald-400 font-bold" : "text-white/80 font-medium"
+                            }`}
+                          >
+                            <span>{link.label}</span>
+                            <span className="text-xs text-[#D2E6BC] font-sans px-2 py-1 rounded bg-white/5">
+                              {mobileDestinationsOpen ? "Close ▲" : "View ▼"}
+                            </span>
+                          </button>
+                          {mobileDestinationsOpen && (
+                            <MobileDestinationsList onItemClick={() => setMobileOpen(false)} />
+                          )}
+                        </div>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          onClick={() => setMobileOpen(false)}
+                          className={`relative inline-block text-[24px] sm:text-[28px] transition-all font-sans hover:font-bold ${isActive ? "text-emerald-400 font-bold" : "text-white/80 font-medium"
+                            }`}
+                        >
+                          {link.label}
+                        </Link>
+                      )}
                     </motion.div>
                   );
                 })}
@@ -203,24 +310,28 @@ export default function Navbar() {
 
               <div className="flex-1" />
 
-              {/* CTA */}
+              {/* CTAs */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.38, duration: 0.4, ease: EASE }}
-                style={{ willChange: "transform, opacity" }}
+                className="flex flex-col gap-3"
               >
                 <Link
-                  href="/contact-us"
-                  className="group relative flex items-center justify-center overflow-hidden w-full
-                    border border-white rounded-xl py-5 uppercase text-white text-[13px]
-                    font-semibold tracking-[1.2px] transition-all duration-400"
-                  style={{ fontFamily: "Inter" }}
+                  href="/rooms"
+                  className="flex items-center justify-center w-full
+                    bg-white text-[#0d1b2e] rounded-xl py-4 text-[14px]
+                    font-semibold tracking-wide transition-all shadow-lg font-sans"
                 >
-                  <span className="absolute inset-0 bg-white scale-x-0 origin-left transition-transform duration-400 group-hover:scale-x-100" />
-                  <span className="relative z-10 transition-colors duration-400 group-hover:text-[#0d1b2e]">
-                    Contact us
-                  </span>
+                  Book Now
+                </Link>
+                <Link
+                  href="/contact-us"
+                  className="flex items-center justify-center w-full
+                    border border-white/30 text-white rounded-xl py-4 text-[14px]
+                    font-medium tracking-wide transition-all font-sans"
+                >
+                  Contact Us
                 </Link>
               </motion.div>
             </motion.div>
@@ -228,6 +339,13 @@ export default function Navbar() {
         </AnimatePresence>
 
       </motion.div>
+
+      {/* ── Destinations Mega Menu Dropdown ─────────────────────────────── */}
+      <DestinationsDropdown
+        isOpen={destinationsOpen}
+        topOffset={navRowHeight + 14}
+        onItemClick={() => setDestinationsOpen(false)}
+      />
     </motion.header>
   );
 }

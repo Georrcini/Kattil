@@ -6,6 +6,9 @@ export interface ICity extends Document {
   label?: string;
   description?: string;
   banner?: string;
+  image?: string;
+  hotelCount?: string;
+  link?: string;
   address?: string;
   phone?: string;
   email?: string;
@@ -39,6 +42,9 @@ const citySchema = new Schema<ICity>(
     label: { type: String },
     description: { type: String },
     banner: { type: String },
+    image: { type: String },
+    hotelCount: { type: String },
+    link: { type: String },
     address: { type: String },
     phone: { type: String },
     email: { type: String },
@@ -53,7 +59,15 @@ const citySchema = new Schema<ICity>(
 citySchema.index({ slug: 1 }, { unique: true });
 citySchema.index({ active: 1 });
 
-const City: Model<ICity> =
-  mongoose.models.City ?? mongoose.model<ICity>("City", citySchema);
+let City: Model<ICity>;
+
+if (process.env.NODE_ENV !== "production") {
+  if (mongoose.models["City"]) {
+    delete mongoose.models["City"];
+  }
+  City = mongoose.model<ICity>("City", citySchema);
+} else {
+  City = (mongoose.models.City as Model<ICity>) ?? mongoose.model<ICity>("City", citySchema);
+}
 
 export default City;

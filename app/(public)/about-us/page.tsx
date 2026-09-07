@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/seo";
 import { connectDB } from "@/lib/db/mongodb";
 import AboutModel from "@/lib/models/About";
-export { AnimatedWords } from "./_content";
 import AboutContent from "./_content";
 
 // ── Shared cached fetch — deduplicates the DB call between generateMetadata and page ──

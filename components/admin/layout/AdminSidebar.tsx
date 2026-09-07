@@ -20,23 +20,23 @@ const navSections: NavSection[] = [
   {
     title: "Content Management",
     items: [
-      { label: "Rooms",            href: "/admin/rooms",           icon: BedDouble  },
-      { label: "Gallery",          href: "/admin/gallery",            icon: Images     },
-      { label: "Gallery Categories", href: "/admin/gallery-categories", icon: Tag    },
-      { label: "Amenities",        href: "/admin/amenities",          icon: Sparkles },
-      { label: "Blog Posts",       href: "/admin/blogs",           icon: BookOpen   },
-      { label: "Blog Categories",  href: "/admin/blog-categories", icon: Tag        },
-      { label: "FAQs",             href: "/admin/faqs",            icon: HelpCircle },
-      { label: "FAQ Categories",   href: "/admin/faq-categories",  icon: Layers     },
+      { label: "Rooms", href: "/admin/rooms", icon: BedDouble },
+      { label: "Gallery", href: "/admin/gallery", icon: Images },
+      { label: "Gallery Categories", href: "/admin/gallery-categories", icon: Tag },
+      { label: "Amenities", href: "/admin/amenities", icon: Sparkles },
+      { label: "Blog Posts", href: "/admin/blogs", icon: BookOpen },
+      { label: "Blog Categories", href: "/admin/blog-categories", icon: Tag },
+      { label: "FAQs", href: "/admin/faqs", icon: HelpCircle },
+      { label: "FAQ Categories", href: "/admin/faq-categories", icon: Layers },
     ],
   },
   {
     title: "Pages & Content",
     items: [
-      { label: "Home",             href: "/admin/home",    icon: Home     },
-      { label: "About Us",         href: "/admin/about",   icon: FileText },
-      { label: "Contact",          href: "/admin/contact", icon: Phone    },
-      { label: "Footer & Sidebar", href: "/admin/footer",  icon: Layers   },
+      { label: "Home", href: "/admin/home", icon: Home },
+      { label: "About Us", href: "/admin/about", icon: FileText },
+      { label: "Contact", href: "/admin/contact", icon: Phone },
+      { label: "Footer & Sidebar", href: "/admin/footer", icon: Layers },
     ],
   },
   // {
@@ -49,7 +49,7 @@ const navSections: NavSection[] = [
   {
     title: "Operations",
     items: [
-      { label: "Cities", href: "/admin/cities", icon: MapPin },
+      { label: "Destinations", href: "/admin/destinations", icon: MapPin },
     ],
   },
 ];
@@ -58,8 +58,13 @@ export default function AdminSidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isActive = (href: string) =>
-    href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+  const isActive = (href: string) => {
+    if (href === "/admin") return pathname === "/admin";
+    if (href === "/admin/destinations") {
+      return pathname.startsWith("/admin/destinations") || pathname.startsWith("/admin/cities");
+    }
+    return pathname.startsWith(href);
+  };
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col bg-[hsl(var(--adm-sidebar))] border-r border-[hsl(var(--adm-sidebar-border))]">

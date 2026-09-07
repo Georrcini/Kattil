@@ -11,7 +11,7 @@ const STATIC_FALLBACK = {
   copyright:   `© ${new Date().getFullYear()} Kattil. All Rights Reserved.`,
   footerLinks: [
     {
-      section: "Navigation",
+      section: "NAVIGATION",
       order: 0,
       links: [
         { label: "Home",       href: "/",           newTab: false, order: 0 },
@@ -23,8 +23,20 @@ const STATIC_FALLBACK = {
       ],
     },
     {
-      section: "Legal",
+      section: "NAVIGATION",
       order: 1,
+      links: [
+        { label: "Home",       href: "/",           newTab: false, order: 0 },
+        { label: "About Us",   href: "/about-us",   newTab: false, order: 1 },
+        { label: "Rooms",      href: "/rooms",      newTab: false, order: 2 },
+        { label: "Gallery",    href: "/gallery",    newTab: false, order: 3 },
+        { label: "Blog",       href: "/blog",       newTab: false, order: 4 },
+        { label: "Contact",    href: "/contact-us", newTab: false, order: 5 },
+      ],
+    },
+    {
+      section: "LEGAL",
+      order: 2,
       links: [
         { label: "Privacy Policy",    href: "/privacy-policy",    newTab: false, order: 0 },
         { label: "Refund Policy",     href: "/refund-policy",     newTab: false, order: 1 },
@@ -37,6 +49,14 @@ const STATIC_FALLBACK = {
     {
       label: "Instagram", url: "https://www.instagram.com/kattilthehome",
       iconName: "instagram", iconImageUrl: "", bgColor: "linear-gradient(45deg,#833ab4,#fd1d1d,#fcb045)", visible: true,
+    },
+  ],
+  locations: [
+    {
+      city: "Madurai",
+      address: "2nd St, Park Town, Bama Nagar, Madurai, Tamil Nadu 625017, India",
+      phone: "+91 7358127921",
+      email: "sadhu_burlington@live.com",
     },
   ],
   sidebarIcons: [

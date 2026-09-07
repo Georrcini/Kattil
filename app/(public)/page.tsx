@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { SITE_URL, DEFAULT_DESCRIPTION } from "@/lib/seo";
 import HeroNavbar from "@/components/layout/hero-navbar";
-import AmenitiesSection, { type AmenityItem } from "@/components/section/home/amenties-section";
-import GalleryPreview, { type GalleryPreviewItem } from "@/components/section/home/gallery-preview";
+import DestinationsSection from "@/components/section/home/destinations-section";
+import ComfortSection from "@/components/section/home/comfort-section";
+import OffersSection from "@/components/section/home/offers-section";
+import TestimonialsSection from "@/components/section/home/testimonials-section";
 import { connectDB } from "@/lib/db/mongodb";
 import Home from "@/lib/models/Home";
-import Amenity from "@/lib/models/Amenity";
-import Gallery from "@/lib/models/Gallery";
 
 export const metadata: Metadata = {
   title: {
@@ -29,72 +29,20 @@ async function getHomeContent() {
   }
 }
 
-async function getAmenities(): Promise<AmenityItem[]> {
-  try {
-    await connectDB();
-    const amenities = await Amenity.find({ visible: true })
-      .sort({ order: 1, name: 1 })
-      .select("name icon description order")
-      .lean();
-    return amenities as AmenityItem[];
-  } catch {
-    return [];
-  }
-}
-
-async function getGalleryPreview(): Promise<GalleryPreviewItem[]> {
-  try {
-    await connectDB();
-    const items = await Gallery.find({ featured: true })
-      .sort({ order: 1, createdAt: -1 })
-      .limit(4)
-      .populate("city", "name")
-      .lean();
-
-    if (items.length < 4) {
-      const extra = await Gallery.find({ featured: false })
-        .sort({ order: 1, createdAt: -1 })
-        .limit(4 - items.length)
-        .populate("city", "name")
-        .lean();
-      items.push(...extra);
-    }
-
-    return items.map((item) => ({
-      src: item.src as string,
-      alt: item.alt as string,
-      location: (item.city as { name?: string } | null)?.name ?? "Kattil",
-    }));
-  } catch {
-    return [];
-  }
-}
-
 export default async function Home_Page() {
-  const [home, amenities, galleryImages] = await Promise.all([
-    getHomeContent(),
-    getAmenities(),
-    getGalleryPreview(),
-  ]);
+  const home = await getHomeContent();
 
   return (
-    <div className="bg-tertiary">
+    <div className="bg-[#FFFCF2]">
       <HeroNavbar
         heroEyebrow={home?.hero?.eyebrow ?? "The Homely Reset"}
-        heroLine1={home?.hero?.headlineLine1 ?? "Find Your Perfect Stay"}
-        heroLine2={home?.hero?.headlineLine2 ?? "Experience"}
+        heroLine1={home?.hero?.headlineLine1 ?? "Find your perfect"}
+        heroLine2={home?.hero?.headlineLine2 ?? "experience"}
       />
-      <AmenitiesSection
-        eyebrow={home?.amenities?.eyebrow ?? "The Experience"}
-        heading={home?.amenities?.heading ?? "Premium Amenities"}
-        amenities={amenities}
-      />
-      <GalleryPreview
-        eyebrow={home?.galleryPreview?.eyebrow ?? "Our Spaces"}
-        heading={home?.galleryPreview?.heading ?? "Moments Captured"}
-        ctaText={home?.galleryPreview?.ctaText ?? "View All Moments"}
-        images={galleryImages}
-      />
+      <DestinationsSection />
+      <ComfortSection />
+      <OffersSection />
+      <TestimonialsSection />
     </div>
   );
 }

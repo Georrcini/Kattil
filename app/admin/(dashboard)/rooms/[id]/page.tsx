@@ -2,17 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, Loader2, Save, BedDouble } from "lucide-react";
+import { ChevronLeft, Loader2, Save, BedDouble, Plus, X, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import AdminDropzone from "@/components/admin/ui/AdminDropzone";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-interface City { _id: string; name: string; slug: string }
+interface City {
+  _id: string;
+  name: string;
+  slug: string;
+}
 
 interface RoomForm {
   name: string;
   city: string;
+  badge: string;
+  category: "deluxe" | "suite" | "standard" | "premium";
+  amenities: string[];
   images: string[];
   status: "active" | "inactive" | "maintenance";
   link: string;
@@ -21,10 +28,36 @@ interface RoomForm {
 const EMPTY: RoomForm = {
   name: "",
   city: "",
+  badge: "Private room",
+  category: "deluxe",
+  amenities: ["Free Wifi", "Restaurant"],
   images: [],
   status: "active",
   link: "",
 };
+
+const BADGE_PRESETS = [
+  "Private room",
+  "Home stay",
+  "Deluxe Suite",
+  "Standard Room",
+  "Executive Stay",
+  "Entire Apartment",
+  "Dormitory",
+];
+
+const POPULAR_AMENITIES = [
+  "Free Wifi",
+  "Restaurant",
+  "Air Conditioning",
+  "Room Service",
+  "Swimming Pool",
+  "Free Parking",
+  "Breakfast Included",
+  "Smart TV",
+  "Balcony",
+  "24/7 Check-in",
+];
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -65,7 +98,6 @@ function FormField({
   );
 }
 
-
 export default function RoomFormPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
@@ -76,6 +108,7 @@ export default function RoomFormPage() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [customAmenity, setCustomAmenity] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/cities?limit=100")
@@ -94,25 +127,67 @@ export default function RoomFormPage() {
           setForm({
             name: d.name ?? "",
             city: d.city?._id ?? d.city ?? "",
+            badge: d.badge ?? "Private room",
+            category: d.category ?? "deluxe",
+            amenities: Array.isArray(d.amenities) && d.amenities.length > 0 ? d.amenities : ["Free Wifi", "Restaurant"],
             images: d.images ?? [],
             status: d.status ?? "active",
-            link: d.link ?? d.cta?.url ?? "",   // support rooms saved with old cta.url field
+            link: d.link ?? d.cta?.url ?? "",
           });
         }
       })
       .finally(() => setLoading(false));
   }, [id, isNew]);
 
+  const toggleAmenity = (amenity: string) => {
+    setForm((prev) => {
+      const exists = prev.amenities.includes(amenity);
+      return {
+        ...prev,
+        amenities: exists
+          ? prev.amenities.filter((a) => a !== amenity)
+          : [...prev.amenities, amenity],
+      };
+    });
+  };
+
+  const addCustomAmenity = () => {
+    const trimmed = customAmenity.trim();
+    if (trimmed && !form.amenities.includes(trimmed)) {
+      setForm((prev) => ({
+        ...prev,
+        amenities: [...prev.amenities, trimmed],
+      }));
+      setCustomAmenity("");
+    }
+  };
+
+  const removeAmenity = (amenity: string) => {
+    setForm((prev) => ({
+      ...prev,
+      amenities: prev.amenities.filter((a) => a !== amenity),
+    }));
+  };
+
   const handleSave = async () => {
     setError("");
-    if (!form.name.trim()) { setError("Room name is required."); return; }
-    if (!form.city) { setError("Please select a city."); return; }
+    if (!form.name.trim()) {
+      setError("Room name is required.");
+      return;
+    }
+    if (!form.city) {
+      setError("Please select a destination / city property.");
+      return;
+    }
 
     setSaving(true);
     try {
       const body = {
         name: form.name.trim(),
         cityId: form.city,
+        badge: form.badge.trim() || "Private room",
+        category: form.category,
+        amenities: form.amenities,
         images: form.images,
         status: form.status,
         link: form.link.trim() || undefined,
@@ -169,12 +244,12 @@ export default function RoomFormPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-[hsl(var(--adm-foreground))]">
-                {isNew ? "Add New Room" : "Edit Room"}
+                {isNew ? "Add New Property / Room" : "Edit Property / Room"}
               </h1>
               <p className="text-sm text-[hsl(var(--adm-muted-foreground))] mt-0.5">
                 {isNew
-                  ? "Fill in the details below to create a new room listing."
-                  : "Update the room details. Changes go live immediately after saving."}
+                  ? "Fill in the details below to add a property under a destination."
+                  : "Update property details. Changes reflect immediately on the destination page."}
               </p>
             </div>
           </div>
@@ -182,78 +257,222 @@ export default function RoomFormPage() {
 
         {/* Form body */}
         <div className="px-6 py-6 space-y-8">
-
-          {/* Section 1: Room Details */}
+          {/* Section 1: Destination & Property Name */}
           <section>
-            <SectionTitle>Room Details</SectionTitle>
+            <SectionTitle>Property Details</SectionTitle>
             <div className="grid md:grid-cols-2 gap-5">
               <FormField
-                label="Room Name"
+                label="Property / Room Name"
                 required
-                hint="The public-facing name guests will see on the website (e.g., 'Deluxe Pod', 'Royal Suite')."
+                hint="e.g. 'Kattil Executive Stay', 'Kattil Stay', 'Royal Suite'"
               >
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g. Deluxe Pod"
+                  placeholder="e.g. Kattil Executive Stay"
                   className="flex h-10 w-full rounded-lg border border-[hsl(var(--adm-input))] bg-[hsl(var(--adm-background))] px-3 text-sm text-[hsl(var(--adm-foreground))] placeholder:text-[hsl(var(--adm-muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--adm-ring))] transition-colors"
                 />
               </FormField>
 
               <FormField
-                label="City / Property"
+                label="Destination / City"
                 required
-                hint="Which Kattil property does this room belong to? This determines where it appears in the rooms listing."
+                hint="Which destination does this property belong to? (e.g. Madurai, Chennai, Coimbatore)"
               >
                 <select
                   value={form.city}
                   onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
                   className="flex h-10 w-full rounded-lg border border-[hsl(var(--adm-input))] bg-[hsl(var(--adm-background))] px-3 text-sm text-[hsl(var(--adm-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--adm-ring))] transition-colors"
                 >
-                  <option value="">Select a property…</option>
+                  <option value="">Select a destination…</option>
                   {cities.map((c) => (
-                    <option key={c._id} value={c._id}>{c.name}</option>
+                    <option key={c._id} value={c._id}>
+                      {c.name}
+                    </option>
                   ))}
                 </select>
               </FormField>
             </div>
-          </section>
 
-          {/* Section 2: Room Image */}
-          <section>
-            <SectionTitle>Room Image</SectionTitle>
-            <div className="space-y-2">
-              <AdminDropzone
-                label="Primary Image"
-                hint="The main photo guests see when browsing rooms. Use a high-quality landscape image (1200×800px or larger). Supports JPG, PNG, WebP — max 5 MB."
-                value={form.images[0] ?? ""}
-                onChange={(url) => setForm((f) => ({ ...f, images: url ? [url, ...f.images.slice(1)] : f.images.slice(1) }))}
+            {/* Property Type / Badge */}
+            <div className="mt-5 space-y-2">
+              <label className="text-sm font-medium text-[hsl(var(--adm-foreground))]">
+                Stay Type / Badge
+              </label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {BADGE_PRESETS.map((badge) => (
+                  <button
+                    key={badge}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, badge }))}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                      form.badge === badge
+                        ? "bg-[hsl(var(--adm-primary))] text-white border-[hsl(var(--adm-primary))]"
+                        : "bg-[hsl(var(--adm-background))] border-[hsl(var(--adm-border))] text-[hsl(var(--adm-foreground))] hover:border-[hsl(var(--adm-primary)/0.5)]"
+                    }`}
+                  >
+                    {badge}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                value={form.badge}
+                onChange={(e) => setForm((f) => ({ ...f, badge: e.target.value }))}
+                placeholder="Or type custom type, e.g. Private room, Home stay"
+                className="flex h-10 w-full rounded-lg border border-[hsl(var(--adm-input))] bg-[hsl(var(--adm-background))] px-3 text-sm text-[hsl(var(--adm-foreground))] placeholder:text-[hsl(var(--adm-muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--adm-ring))]"
               />
-              <p className="text-xs text-[hsl(var(--adm-muted-foreground))]">
-                Recommended size: <strong>1200 × 800 px</strong> (3:2 ratio) · Landscape works best.
-              </p>
+              <FieldHint>
+                Shown directly above the property name on the destination card (e.g. <em>Private room</em>, <em>Home stay</em>).
+              </FieldHint>
             </div>
           </section>
 
-          {/* Section 3: Booking CTA */}
+          {/* Section 2: Amenities & Features */}
           <section>
-            <SectionTitle>Booking Link</SectionTitle>
+            <SectionTitle>Amenities & Pill Badges</SectionTitle>
+            <div className="space-y-3">
+              <FieldHint>
+                Select the badges shown at the bottom of the property card (e.g. Free Wifi, Restaurant).
+              </FieldHint>
+
+              {/* Popular quick toggles */}
+              <div className="flex flex-wrap gap-2">
+                {POPULAR_AMENITIES.map((amenity) => {
+                  const selected = form.amenities.includes(amenity);
+                  return (
+                    <button
+                      key={amenity}
+                      type="button"
+                      onClick={() => toggleAmenity(amenity)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                        selected
+                          ? "bg-[hsl(var(--adm-primary)/0.15)] text-[hsl(var(--adm-primary))] border-[hsl(var(--adm-primary)/0.4)]"
+                          : "bg-[hsl(var(--adm-background))] border-[hsl(var(--adm-border))] text-[hsl(var(--adm-muted-foreground))] hover:border-[hsl(var(--adm-primary)/0.4)]"
+                      }`}
+                    >
+                      {selected && <Check className="w-3.5 h-3.5" />}
+                      {amenity}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Custom amenity input */}
+              <div className="flex gap-2 pt-2">
+                <input
+                  type="text"
+                  value={customAmenity}
+                  onChange={(e) => setCustomAmenity(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addCustomAmenity();
+                    }
+                  }}
+                  placeholder="Add custom amenity (press Enter)..."
+                  className="flex h-9 flex-1 rounded-lg border border-[hsl(var(--adm-input))] bg-[hsl(var(--adm-background))] px-3 text-xs text-[hsl(var(--adm-foreground))] placeholder:text-[hsl(var(--adm-muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--adm-ring))]"
+                />
+                <button
+                  type="button"
+                  onClick={addCustomAmenity}
+                  className="px-3.5 py-1.5 rounded-lg bg-[hsl(var(--adm-primary))] text-white text-xs font-semibold hover:opacity-90 transition-opacity flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add
+                </button>
+              </div>
+
+              {/* Current selected list */}
+              {form.amenities.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {form.amenities.map((amenity) => (
+                    <span
+                      key={amenity}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[hsl(var(--adm-accent))] text-xs font-medium text-[hsl(var(--adm-foreground))]"
+                    >
+                      {amenity}
+                      <button
+                        type="button"
+                        onClick={() => removeAmenity(amenity)}
+                        className="hover:text-[hsl(var(--adm-destructive))] transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Section 3: Primary Photo */}
+          <section>
+            <SectionTitle>Property Photo</SectionTitle>
+            <div className="space-y-2">
+              <AdminDropzone
+                label="Main Property Image"
+                hint="Upload the main bedroom/property photo shown on the card. Recommended: 1200×800px (16:10 or 3:2 ratio)."
+                value={form.images[0] ?? ""}
+                onChange={(url) =>
+                  setForm((f) => ({
+                    ...f,
+                    images: url ? [url, ...f.images.slice(1)] : f.images.slice(1),
+                  }))
+                }
+              />
+            </div>
+          </section>
+
+          {/* Section 4: Booking & View URL */}
+          <section>
+            <SectionTitle>View & Booking Action</SectionTitle>
             <FormField
-              label="Book Now URL"
-              hint="The external booking URL for this room (e.g., your booking system link). Guests are redirected here when they click 'Book Now'."
+              label="View / Book Now Link"
+              hint="When guests click 'View →' on the property card, navigate to this URL (e.g., booking engine link or contact page)."
             >
               <input
                 type="url"
                 value={form.link}
                 onChange={(e) => setForm((f) => ({ ...f, link: e.target.value }))}
-                placeholder="https://live.ipms247.com/booking/..."
+                placeholder="https://... or /contact-us or /rooms"
                 className="flex h-10 w-full rounded-lg border border-[hsl(var(--adm-input))] bg-[hsl(var(--adm-background))] px-3 text-sm text-[hsl(var(--adm-foreground))] placeholder:text-[hsl(var(--adm-muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--adm-ring))] transition-colors"
               />
             </FormField>
           </section>
 
-          {/* Error */}
+          {/* Section 5: Status */}
+          <section>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((f) => ({
+                    ...f,
+                    status: f.status === "active" ? "inactive" : "active",
+                  }))
+                }
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  form.status === "active"
+                    ? "bg-[hsl(var(--adm-primary))]"
+                    : "bg-[hsl(var(--adm-muted))]"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+                    form.status === "active" ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+              <span className="text-sm font-medium text-[hsl(var(--adm-foreground))]">
+                {form.status === "active"
+                  ? "Active (Visible on destination page)"
+                  : "Inactive (Hidden)"}
+              </span>
+            </div>
+          </section>
+
+          {/* Error message */}
           {error && (
             <div className="rounded-xl border border-[hsl(var(--adm-destructive)/0.3)] bg-[hsl(var(--adm-destructive)/0.08)] px-4 py-3">
               <p className="text-sm text-[hsl(var(--adm-destructive))]">{error}</p>
@@ -277,9 +496,13 @@ export default function RoomFormPage() {
               style={{ background: "hsl(var(--adm-primary))" }}
             >
               {saving ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</>
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Saving…
+                </>
               ) : (
-                <><Save className="h-4 w-4" /> {isNew ? "Create Room" : "Save Changes"}</>
+                <>
+                  <Save className="h-4 w-4" /> {isNew ? "Create Property" : "Save Changes"}
+                </>
               )}
             </button>
           </div>

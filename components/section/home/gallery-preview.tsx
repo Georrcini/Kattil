@@ -155,9 +155,9 @@ export default function GalleryPreview({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-160px 0px 0px 0px" }}
           transition={{ duration: 0.7, ease: EASE }}
-          className="text-center mb-7 md:mb-10 lg:mb-16"
+          className="text-center mb-10"
         >
-          <p className="font-sans text-[12px] font-semibold uppercase tracking-[0.25em] text-[#526442] mb-3">
+          <p className="font-sans text-[12px] font-semibold uppercase tracking-[0.25em] text-[#526442] mb-4">
             {eyebrow}
           </p>
           <h2 className="font-serif text-3xl md:text-5xl font-light text-[#000000] tracking-tight leading-tight">

@@ -110,8 +110,8 @@ function TierCard({ tier, index }: { tier: (typeof tiers)[0]; index: number }) {
     >
       {/* Big refund % watermark */}
       <span
-        className="absolute -right-4 -bottom-6 font-serif font-light leading-none select-none pointer-events-none"
-        style={{ fontSize: "clamp(5rem, 12vw, 9rem)", color: tier.color, opacity: 0.07 }}
+        className="absolute -right-4 -bottom-6 font-sans font-light leading-none select-none pointer-events-none"
+        style={{ fontSize: "clamp(5rem, 12vw, 9rem)", color: tier.color, opacity: 0.06 }}
       >
         {tier.refund}
       </span>
@@ -125,18 +125,18 @@ function TierCard({ tier, index }: { tier: (typeof tiers)[0]; index: number }) {
       {/* Refund percentage */}
       <div className="mb-3 flex items-end gap-1.5">
         <span
-          className="font-serif leading-none font-normal"
-          style={{ fontSize: "clamp(3rem, 8vw, 5rem)", color: tier.color }}
+          className="font-sans font-semibold leading-none tracking-tight"
+          style={{ fontSize: "clamp(2.8rem, 7vw, 4.5rem)", color: tier.color }}
         >
           {tier.refund}
         </span>
-        <span className="font-sans text-[13px] font-medium text-primary/40 mb-3 ml-1 uppercase tracking-wider">
+        <span className="font-sans text-[13px] font-medium text-primary/40 mb-2 ml-1 uppercase tracking-wider">
           refund
         </span>
       </div>
 
       {/* Window label */}
-      <h3 className="font-serif text-lg md:text-xl font-medium text-primary mb-4 leading-snug tracking-tight">
+      <h3 className="font-sans text-lg md:text-xl font-semibold text-primary mb-4 leading-snug tracking-tight">
         {tier.window}
       </h3>
 
@@ -176,7 +176,7 @@ function PolicyRow({ policy, index }: { policy: (typeof additionalPolicies)[0]; 
 
       {/* Text */}
       <div>
-        <h4 className="font-serif text-lg md:text-xl font-medium text-primary mb-2.5 tracking-tight">
+        <h4 className="font-sans text-base md:text-lg font-semibold text-primary mb-4 tracking-tight">
           {policy.title}
         </h4>
         <p className="font-sans text-[15px] text-primary/60 leading-relaxed max-w-2xl">
@@ -209,9 +209,13 @@ export default function RefundPolicyPage() {
             Legal
           </motion.p>
 
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-[3.6rem] font-normal
-            text-white leading-[1.1] tracking-tight mb-7 max-w-3xl">
-            <AnimatedWords text="Refund Policy." delay={0.2} />
+          <h1 className="text-white text-[34px] sm:text-[42px] md:text-[48px] lg:text-[52px] leading-[1.1] tracking-tight mb-10 max-w-3xl">
+            <span className="font-sans font-semibold">
+              <AnimatedWords text="Refund" delay={0.2} />
+            </span>{" "}
+            <span className="font-serif italic font-normal">
+              <AnimatedWords text="Policy." delay={0.28} />
+            </span>
           </h1>
 
           <motion.p
@@ -257,9 +261,11 @@ export default function RefundPolicyPage() {
               <p className="font-sans text-[12px] font-semibold uppercase tracking-[0.28em] text-primary/40 mb-4">
                 Cancellation Windows
               </p>
-              <h2 className="font-serif text-3xl md:text-4xl font-normal text-primary
-                leading-[1.1] tracking-tight max-w-xl">
-                How far in advance does it matter?
+              <h2 className="text-[#0d1b2e] text-[28px] sm:text-[34px] md:text-[40px] font-sans font-normal leading-[1.18] tracking-tight max-w-xl">
+                How far in advance does it{" "}
+                <span className="font-serif italic font-normal text-[#0d1b2e]">
+                  matter?
+                </span>
               </h2>
             </motion.div>
           </div>
@@ -324,9 +330,11 @@ export default function RefundPolicyPage() {
             <p className="font-sans text-[12px] font-semibold uppercase tracking-[0.28em] text-primary/40 mb-4">
               Additional Details
             </p>
-            <h2 className="font-serif text-3xl md:text-4xl font-normal text-primary
-              leading-[1.1] tracking-tight max-w-xl mb-10">
-              What else should you know?
+            <h2 className="text-[#0d1b2e] text-[28px] sm:text-[34px] md:text-[40px] font-sans font-normal leading-[1.18] tracking-tight max-w-xl mb-10">
+              What else should you{" "}
+              <span className="font-serif italic font-normal text-[#0d1b2e]">
+                know?
+              </span>
             </h2>
           </motion.div>
 
@@ -346,8 +354,9 @@ export default function RefundPolicyPage() {
               flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
           >
             <div>
-              <h3 className="font-serif text-xl md:text-2xl font-medium text-primary mb-1.5">
-                Need to request a refund?
+              <h3 className="font-sans text-xl md:text-2xl font-semibold text-primary mb-1.5">
+                Need to request a{" "}
+                <span className="font-serif italic font-normal">refund?</span>
               </h3>
               <p className="font-sans text-[14px] text-primary/55 leading-relaxed">
                 Email us at{" "}
