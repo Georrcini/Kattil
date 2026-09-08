@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
@@ -119,92 +119,154 @@ const TESTIMONIALS_DATA: Testimonial[][] = [
   ],
 ];
 
+const ALL_TESTIMONIALS = TESTIMONIALS_DATA.flat();
+
 export default function TestimonialsSection() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const mobileScrollRef = useRef<HTMLDivElement>(null);
 
   const currentReviews = TESTIMONIALS_DATA[activeIndex] || TESTIMONIALS_DATA[0];
 
   return (
-    <section className="w-full bg-transparent pt-14 pb-20 md:pt-18 md:pb-28 overflow-x-hidden">
+    <section className="w-full bg-transparent pt-10 pb-16 md:pt-18 md:pb-28 overflow-x-hidden">
       <div className="w-full max-w-[1920px] mx-auto px-3 md:px-8">
-        <div className="px-5 md:px-8 lg:px-12">        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-10"
-        >
-          <h2 className="text-[#0d1b2e] text-[32px] sm:text-[40px] md:text-[44px] font-sans font-normal tracking-tight">
-            What our{" "}
-            <span className="font-serif italic font-normal text-[#0d1b2e]">
-              Guests say
-            </span>
-          </h2>
-        </motion.div>
+        <div className="px-4 sm:px-6 md:px-8 lg:px-12">
+          {/* Section Heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-8 sm:mb-10"
+          >
+            <h2 className="text-[#0d1b2e] text-[26px] sm:text-[40px] md:text-[44px] font-sans font-normal tracking-tight">
+              What our{" "}
+              <span className="font-serif italic font-normal text-[#0d1b2e]">
+                Guests say
+              </span>
+            </h2>
+          </motion.div>
 
-          {/* 3 Testimonial Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {currentReviews.map((item, index) => (
-              <motion.div
-                key={`${activeIndex}-${index}`}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  delay: index * 0.08,
-                  duration: 0.45,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="bg-white rounded-[18px] p-6 sm:p-7 md:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-black/[0.03] hover:shadow-[0_10px_32px_rgba(0,0,0,0.06)] transition-all duration-300"
-              >
-                <div>
-                  {/* 5 Stars */}
-                  <div className="flex items-center gap-1">
-                    {[...Array(item.rating)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-[#FBBF24] text-[#FBBF24]"
-                      />
-                    ))}
+          {/* ── Mobile Carousel View (< md) ─────────────────────────────────── */}
+          <div className="block md:hidden">
+            <div
+              ref={mobileScrollRef}
+              className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none px-4 -mx-4 pb-2 scroll-smooth"
+              style={{
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                WebkitOverflowScrolling: "touch",
+              }}
+            >
+              {ALL_TESTIMONIALS.map((item, index) => (
+                <div
+                  key={`mobile-${index}`}
+                  className="w-[85vw] max-w-[340px] shrink-0 snap-center bg-white rounded-[18px] p-5 sm:p-6 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.04)] border border-black/[0.04] select-none"
+                >
+                  <div>
+                    {/* 5 Stars */}
+                    <div className="flex items-center gap-1">
+                      {[...Array(item.rating)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-4 h-4 fill-[#FBBF24] text-[#FBBF24]"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-[17px] sm:text-[18px] font-bold text-[#0d1b2e] mt-3.5 leading-snug">
+                      {item.title}
+                    </h3>
+
+                    {/* Review Text */}
+                    <p className="text-gray-600 text-[14px] sm:text-[15px] leading-relaxed mt-2.5 font-light">
+                      {item.review}
+                    </p>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="text-[20px] font-bold text-[#0d1b2e] mt-4 leading-snug">
-                    {item.title}
-                  </h3>
-
-                  {/* Review Text */}
-                  <p className="text-gray-600 text-[16px] leading-relaxed mt-4 font-light">
-                    {item.review}
-                  </p>
+                  {/* Author Info */}
+                  <div className="mt-5 pt-3.5 border-t border-gray-100 flex items-center justify-between">
+                    <div>
+                      <p className="text-[13.5px] font-bold text-[#0d1b2e]">
+                        {item.author}
+                      </p>
+                      <p className="text-[11.5px] text-gray-400 mt-0.5">
+                        {item.location}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-
-                {/* Author Info */}
-                <div className="mt-6 pt-4 border-t border-gray-100">
-                  <p className="text-[14px] font-bold text-[#0d1b2e]">
-                    {item.author}
-                  </p>
-                  <p className="text-[12px] text-gray-400 mt-0.5">
-                    {item.location}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          {/* Pagination Dots */}
-          <div className="flex justify-center items-center gap-2.5 mt-12">
-            {TESTIMONIALS_DATA.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setActiveIndex(i)}
-                aria-label={`Go to testimonial page ${i + 1}`}
-                className={`rounded-full transition-all duration-300 ${activeIndex === i
-                  ? "w-2.5 h-2.5 bg-[#8EA980] scale-110"
-                  : "w-2.5 h-2.5 bg-[#D1D5DB] hover:bg-gray-400"
+          {/* ── Desktop Grid View (>= md) ────────────────────────────────────── */}
+          <div className="hidden md:block">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {currentReviews.map((item, index) => (
+                <motion.div
+                  key={`${activeIndex}-${index}`}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: index * 0.08,
+                    duration: 0.45,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="bg-white rounded-[18px] p-6 sm:p-7 md:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-black/[0.03] hover:shadow-[0_10px_32px_rgba(0,0,0,0.06)] transition-all duration-300"
+                >
+                  <div>
+                    {/* 5 Stars */}
+                    <div className="flex items-center gap-1">
+                      {[...Array(item.rating)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-4 h-4 fill-[#FBBF24] text-[#FBBF24]"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-[20px] font-bold text-[#0d1b2e] mt-4 leading-snug">
+                      {item.title}
+                    </h3>
+
+                    {/* Review Text */}
+                    <p className="text-gray-600 text-[16px] leading-relaxed mt-4 font-light">
+                      {item.review}
+                    </p>
+                  </div>
+
+                  {/* Author Info */}
+                  <div className="mt-6 pt-4 border-t border-gray-100">
+                    <p className="text-[14px] font-bold text-[#0d1b2e]">
+                      {item.author}
+                    </p>
+                    <p className="text-[12px] text-gray-400 mt-0.5">
+                      {item.location}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Pagination Dots (Desktop) */}
+            <div className="flex justify-center items-center gap-2.5 mt-12">
+              {TESTIMONIALS_DATA.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setActiveIndex(i)}
+                  aria-label={`Go to testimonial page ${i + 1}`}
+                  className={`rounded-full transition-all duration-300 ${
+                    activeIndex === i
+                      ? "w-2.5 h-2.5 bg-[#8EA980] scale-110"
+                      : "w-2.5 h-2.5 bg-[#D1D5DB] hover:bg-gray-400"
                   }`}
-              />
-            ))}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

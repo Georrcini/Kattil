@@ -37,7 +37,7 @@ export default function DestinationsSection() {
   return (
     <section
       id="destinations"
-      className="bg-transparent pt-36 pb-10 md:pt-36 md:pb-20 lg:pt-36 lg:pb-28 mt-25 scroll-mt-[110px] 2xl:scroll-mt-[135px]"
+      className="bg-transparent pt-16 sm:pt-28 md:pt-36 pb-10 md:pb-20 lg:pt-36 lg:pb-28 mt-8 sm:mt-16 md:mt-25 scroll-mt-[110px] 2xl:scroll-mt-[135px]"
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
@@ -46,9 +46,9 @@ export default function DestinationsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-10"
+          className="text-center mb-6 sm:mb-10"
         >
-          <h2 className="text-[#0d1b2e] text-[32px] sm:text-[40px] md:text-[44px] font-sans font-normal tracking-tight">
+          <h2 className="text-[#0d1b2e] text-[26px] sm:text-[36px] md:text-[44px] font-sans font-normal tracking-tight">
             Destinations to{" "}
             <span className="font-serif italic font-normal text-[#0d1b2e]">
               Discover
@@ -56,8 +56,8 @@ export default function DestinationsSection() {
           </h2>
         </motion.div>
 
-        {/* 4 Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+        {/* 4 Cards Grid - One by one centered on mobile with compact max-w, 4 columns on desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 justify-items-center">
           {DESTINATIONS.map((dest, index) => (
             <motion.div
               key={dest.name}
@@ -69,41 +69,43 @@ export default function DestinationsSection() {
                 duration: 0.45,
                 ease: [0.22, 1, 0.36, 1],
               }}
+              className="w-full max-w-[280px] sm:max-w-[320px] md:max-w-none"
             >
               <Link
                 href={dest.href}
-                className="group relative block aspect-[3/4.2] rounded-[8px] overflow-hidden bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.12)] transition-all duration-300"
+                className="group relative block aspect-[3/3.8] sm:aspect-[3/4.2] rounded-[8px] overflow-hidden bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.12)] transition-all duration-300"
               >
                 {/* Top Pill Tag */}
-                <div className="absolute top-4 left-4 right-4 flex justify-center z-10">
+                <div className="absolute top-3 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 flex justify-center z-10">
                   <div
                     className="
-      w-full
-      h-[35px]
-      flex items-center justify-center
-      bg-[#FFFCF2]
-      backdrop-blur-[4px]
-      rounded-[70px]
-      px-4
-      text-[13px]
-      font-medium
-      text-[#52613F]
-      tracking-tight
-      shadow-none
-      translate-y-3
-      transition-colors
-    "
+                      w-full
+                      h-[30px] sm:h-[35px]
+                      flex items-center justify-center
+                      bg-[#FFFCF2]
+                      backdrop-blur-[4px]
+                      rounded-[70px]
+                      px-3 sm:px-4
+                      text-[12px] sm:text-[13px]
+                      font-medium
+                      text-[#52613F]
+                      tracking-tight
+                      shadow-none
+                      translate-y-1.5 sm:translate-y-3
+                      transition-colors
+                    "
                   >
                     {dest.pillLabel}
                   </div>
                 </div>
+
                 {/* Destination Image */}
                 <div className="relative w-full h-full">
                   <Image
                     src={dest.image}
                     alt={dest.name}
                     fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    sizes="(max-width: 640px) 280px, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
                 </div>
@@ -121,10 +123,11 @@ export default function DestinationsSection() {
               duration: 0.45,
               ease: [0.22, 1, 0.36, 1],
             }}
+            className="w-full max-w-[280px] sm:max-w-[320px] md:max-w-none"
           >
             <Link
               href="/rooms"
-              className="group relative flex flex-col aspect-[3/4.2] rounded-[8px] overflow-hidden bg-[#C5D9B0] text-white shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.12)] transition-all duration-300"
+              className="group relative flex flex-col aspect-[3/3.8] sm:aspect-[3/4.2] rounded-[8px] overflow-hidden bg-[#C5D9B0] text-white shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.12)] transition-all duration-300"
             >
               {/* Full Artwork Background */}
               <div className="relative w-full h-full">
@@ -132,21 +135,19 @@ export default function DestinationsSection() {
                   src="/images/destinations/destination-card-bg.png"
                   alt="View all our destinations"
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  sizes="(max-width: 640px) 280px, (max-width: 1024px) 50vw, 25vw"
                   className="object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
               </div>
 
               {/* Bottom CTA */}
-              <div className="absolute bottom-5 left-5 right-5 z-10 flex items-end justify-between gap-3">
-                <p className="text-white text-[18px] sm:text-[20px] font-normal leading-[1.15] tracking-tight drop-shadow-sm">
-                  View all our
-                  <br />
-                  Destination
+              <div className="absolute bottom-4 sm:bottom-5 left-4 sm:left-5 right-4 sm:right-5 z-10 flex items-center sm:items-end justify-between gap-2 sm:gap-3">
+                <p className="text-white text-[13.5px] sm:text-[18px] md:text-[20px] font-normal leading-tight sm:leading-[1.15] tracking-tight drop-shadow-sm whitespace-nowrap sm:whitespace-normal">
+                  View all our <br className="hidden sm:inline" />Destination
                 </p>
 
-                <div className="w-10 h-10 rounded-[8px] bg-white text-[#8FAE80] flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                  <ArrowRight className="w-5 h-5 stroke-[1.8]" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[6px] sm:rounded-[8px] bg-white text-[#8FAE80] flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.8]" />
                 </div>
               </div>
             </Link>
