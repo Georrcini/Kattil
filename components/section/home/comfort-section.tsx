@@ -37,7 +37,7 @@ export default function ComfortSection() {
         background: "linear-gradient(180deg, rgba(240, 234, 210, 0.8) 0%, rgba(240, 234, 210, 0) 100%)",
       }}
     >
-      <div className="w-full max-w-[1560px] 2xl:max-w-[1680px] mx-auto min-h-[500px] lg:min-h-[540px] flex items-center pt-12 pb-14 sm:pt-16 sm:pb-18 lg:pt-[85px] lg:pb-[70px] px-6 sm:px-10 lg:px-14 xl:px-20 box-border">
+      <div className="w-full max-w-[1560px] 2xl:max-w-[1680px] mx-auto min-h-[500px] lg:min-h-[540px] flex items-center pt-12 pb-18 sm:pt-16 sm:pb-20 lg:pt-[85px] lg:pb-[70px] px-6 sm:px-10 lg:px-14 xl:px-20 box-border">
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 xl:gap-12 items-center">
           {/* Left Column: Community Dining Image */}
           <motion.div

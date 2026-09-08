@@ -142,7 +142,7 @@ export default function DestinationsSection() {
 
               {/* Bottom CTA */}
               <div className="absolute bottom-4 sm:bottom-5 left-4 sm:left-5 right-4 sm:right-5 z-10 flex items-center sm:items-end justify-between gap-2 sm:gap-3">
-                <p className="text-white text-[13.5px] sm:text-[18px] md:text-[20px] font-normal leading-tight sm:leading-[1.15] tracking-tight drop-shadow-sm whitespace-nowrap sm:whitespace-normal">
+                <p className="text-white text-[13.5px] sm:text-[18px] md:text-[20px] font-normal leading-tight sm:leading-[1.15] tracking-tight drop-shadow-sm whitespace-nowrap sm:whitespace-normal underline sm:no-underline underline-offset-4 decoration-white">
                   View all our <br className="hidden sm:inline" />Destination
                 </p>
 

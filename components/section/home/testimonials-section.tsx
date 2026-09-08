@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { Star, ArrowLeft, ArrowRight } from "lucide-react";
 
 interface Testimonial {
   rating: number;
@@ -42,41 +42,33 @@ const TESTIMONIALS_DATA: Testimonial[][] = [
   [
     {
       rating: 5,
-      title: "An Oasis of Calm in Madurai",
+      title: "Perfect Stay for Business",
       review:
-        "Exceptional hospitality and serene aesthetic. The rooms were spotless, linen crisp, and the staff treated us like family throughout our stay.",
+        "High-speed Wi-Fi, peaceful environment, and great workspace in the room. The check-in process was seamless and quick.",
       author: "Ananya",
       location: "Bangalore",
     },
     {
       rating: 5,
-      title: "Perfect For Solo Travelers",
+      title: "Unmatched Cleanliness",
       review:
-        "Met wonderful people in the common area and the bunk pods felt remarkably private and comfortable with fast Wi-Fi and cold AC.",
+        "The rooms were spotless and the bed was exceptionally comfortable. Loved the eco-friendly toiletries provided.",
       author: "David",
-      location: "London",
+      location: "United Kingdom",
     },
     {
       rating: 5,
-      title: "Exceeded All Expectations",
+      title: "Memorable Weekend Getaway",
       review:
-        "Super close to the temple and key transit points. Seamless check-in and the curated local tips saved us tons of time exploring.",
-      author: "Suresh",
-      location: "Coimbatore",
+        "The ambience is peaceful, serene, and relaxing. Delicious breakfast and super supportive concierge staff.",
+      author: "Sneha",
+      location: "Hyderabad",
     },
   ],
   [
     {
       rating: 5,
-      title: "Homely Feel with Hotel Quality",
-      review:
-        "You get the warmth and personal care of a boutique home stay with the cleanliness and standards of a top tier hotel.",
-      author: "Kavitha",
-      location: "Hyderabad",
-    },
-    {
-      rating: 5,
-      title: "Great Workspace & Community",
+      title: "Great for Digital Nomads",
       review:
         "Worked remotely for a week from Kattil. Reliable power, super fast internet, and fantastic filter coffee every morning.",
       author: "Rahul",
@@ -89,6 +81,14 @@ const TESTIMONIALS_DATA: Testimonial[][] = [
         "The minimal earthy interior design and subtle lighting make you instantly relax after a long journey.",
       author: "Elena",
       location: "Germany",
+    },
+    {
+      rating: 5,
+      title: "Superb Location & Value",
+      review:
+        "Easy access to public transit, quiet at night, and very friendly team. Would definitely recommend to anyone visiting.",
+      author: "Aravind",
+      location: "Pune",
     },
   ],
   [
@@ -124,6 +124,31 @@ const ALL_TESTIMONIALS = TESTIMONIALS_DATA.flat();
 export default function TestimonialsSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const mobileScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkMobileScroll = () => {
+    if (mobileScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = mobileScrollRef.current;
+      setCanScrollLeft(scrollLeft > 10);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkMobileScroll();
+  }, []);
+
+  const scrollMobile = (direction: "left" | "right") => {
+    if (mobileScrollRef.current) {
+      const cardWidth = mobileScrollRef.current.clientWidth * 0.85;
+      mobileScrollRef.current.scrollBy({
+        left: direction === "left" ? -cardWidth : cardWidth,
+        behavior: "smooth",
+      });
+      setTimeout(checkMobileScroll, 350);
+    }
+  };
 
   const currentReviews = TESTIMONIALS_DATA[activeIndex] || TESTIMONIALS_DATA[0];
 
@@ -151,6 +176,7 @@ export default function TestimonialsSection() {
           <div className="block md:hidden">
             <div
               ref={mobileScrollRef}
+              onScroll={checkMobileScroll}
               className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none px-4 -mx-4 pb-2 scroll-smooth"
               style={{
                 scrollbarWidth: "none",
@@ -198,6 +224,36 @@ export default function TestimonialsSection() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Navigation Arrow Buttons (Mobile) */}
+            <div className="flex items-center justify-center gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => scrollMobile("left")}
+                disabled={!canScrollLeft}
+                aria-label="Previous review"
+                className={`w-11 h-11 rounded-[14px] flex items-center justify-center transition-all duration-200 active:scale-95 ${
+                  canScrollLeft
+                    ? "bg-[#EDF5E4] text-[#526442] hover:bg-[#DCEAC8] border border-[#526442]/20 cursor-pointer shadow-xs"
+                    : "bg-[#EDF5E4]/40 text-[#A3B596] border border-black/[0.04] cursor-not-allowed"
+                }`}
+              >
+                <ArrowLeft className="w-5 h-5 stroke-[2.2]" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollMobile("right")}
+                disabled={!canScrollRight}
+                aria-label="Next review"
+                className={`w-11 h-11 rounded-[14px] flex items-center justify-center transition-all duration-200 active:scale-95 ${
+                  canScrollRight
+                    ? "bg-[#EDF5E4] text-[#526442] hover:bg-[#DCEAC8] border border-[#526442]/20 cursor-pointer shadow-xs"
+                    : "bg-[#EDF5E4]/40 text-[#A3B596] border border-black/[0.04] cursor-not-allowed"
+                }`}
+              >
+                <ArrowRight className="w-5 h-5 stroke-[2.2]" />
+              </button>
             </div>
           </div>
 
@@ -251,21 +307,34 @@ export default function TestimonialsSection() {
               ))}
             </div>
 
-            {/* Pagination Dots (Desktop) */}
-            <div className="flex justify-center items-center gap-2.5 mt-12">
-              {TESTIMONIALS_DATA.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setActiveIndex(i)}
-                  aria-label={`Go to testimonial page ${i + 1}`}
-                  className={`rounded-full transition-all duration-300 ${
-                    activeIndex === i
-                      ? "w-2.5 h-2.5 bg-[#8EA980] scale-110"
-                      : "w-2.5 h-2.5 bg-[#D1D5DB] hover:bg-gray-400"
-                  }`}
-                />
-              ))}
+            {/* Navigation Arrow Buttons (Desktop) */}
+            <div className="flex justify-center items-center gap-3 mt-10">
+              <button
+                type="button"
+                onClick={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
+                disabled={activeIndex === 0}
+                aria-label="Previous reviews page"
+                className={`w-11 h-11 rounded-[14px] flex items-center justify-center transition-all duration-200 active:scale-95 ${
+                  activeIndex > 0
+                    ? "bg-[#EDF5E4] text-[#526442] hover:bg-[#DCEAC8] border border-[#526442]/20 cursor-pointer shadow-xs"
+                    : "bg-[#EDF5E4]/40 text-[#A3B596] border border-black/[0.04] cursor-not-allowed"
+                }`}
+              >
+                <ArrowLeft className="w-5 h-5 stroke-[2.2]" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveIndex((prev) => Math.min(TESTIMONIALS_DATA.length - 1, prev + 1))}
+                disabled={activeIndex === TESTIMONIALS_DATA.length - 1}
+                aria-label="Next reviews page"
+                className={`w-11 h-11 rounded-[14px] flex items-center justify-center transition-all duration-200 active:scale-95 ${
+                  activeIndex < TESTIMONIALS_DATA.length - 1
+                    ? "bg-[#EDF5E4] text-[#526442] hover:bg-[#DCEAC8] border border-[#526442]/20 cursor-pointer shadow-xs"
+                    : "bg-[#EDF5E4]/40 text-[#A3B596] border border-black/[0.04] cursor-not-allowed"
+                }`}
+              >
+                <ArrowRight className="w-5 h-5 stroke-[2.2]" />
+              </button>
             </div>
           </div>
         </div>

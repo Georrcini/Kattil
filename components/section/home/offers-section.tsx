@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 
 export default function OffersSection() {
   return (
-    <section className="w-full bg-transparent pt-0 pb-10 sm:pb-14 md:pb-20 px-3 md:px-5">
+    <section className="w-full bg-transparent pt-4 sm:pt-6 md:pt-8 lg:pt-0 pb-10 sm:pb-14 md:pb-20 px-3 md:px-5">
       <div className="w-full max-w-[1920px] mx-auto">
         <div
           className="
@@ -86,7 +86,7 @@ export default function OffersSection() {
                 stay more rewarding, from special rates to exclusive
                 experiences.
               </p>
-              <div className="mt-[80px]">
+              <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-[80px]">
                 <Link
                   href="/rooms"
                   className="
