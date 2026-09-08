@@ -258,10 +258,10 @@ export default function BookingBarWidget() {
           positionElement: dateBoxRef.current || dateInputRef.current,
           appendTo: document.body,
           showMonths: 1,
-          onReady(selectedDates, dateStr, instance) {
+          onReady(selectedDates: Date[], dateStr: string, instance: any) {
             repositionCalendar(instance);
           },
-          onOpen(selectedDates, dateStr, instance) {
+          onOpen(selectedDates: Date[], dateStr: string, instance: any) {
             repositionCalendar(instance);
             requestAnimationFrame(() => repositionCalendar(instance));
             setTimeout(() => repositionCalendar(instance), 10);
