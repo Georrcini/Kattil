@@ -109,7 +109,26 @@ export default function HeroNavbar({
   const heroJumpedRef = useRef(false);
   const heroVisibleRef = useRef(heroVisible);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const navbarH = NAVBAR_H_DEFAULT;
+  const navRowRef = useRef<HTMLDivElement>(null);
+  const [navRowHeight, setNavRowHeight] = useState(74);
+
+  useEffect(() => {
+    const measure = () => {
+      if (navRowRef.current) {
+        setNavRowHeight(navRowRef.current.offsetHeight);
+      } else if (typeof window !== "undefined") {
+        if (window.innerWidth < 640) setNavRowHeight(74);
+        else if (window.innerWidth < 768) setNavRowHeight(82);
+        else if (window.innerWidth < 1024) setNavRowHeight(90);
+        else setNavRowHeight(94);
+      }
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const navbarH = navRowHeight;
 
   const handleDestinationsMouseEnter = useCallback(() => {
     if (timeoutRef.current) {
@@ -173,98 +192,29 @@ export default function HeroNavbar({
     heroVisibleRef.current = heroVisible;
   }, [heroVisible]);
 
+  // Buttery-smooth scroll handler — manages scrolled shadow + hero expand/collapse without hijacking gestures
   useEffect(() => {
-    if (!isHome) return;
-    let lockUntil = 0;
-    let prevHeroVisible = heroVisibleRef.current;
-
-    const jump = () => {
-      if (heroJumpedRef.current) return;
-      heroJumpedRef.current = true;
-      lockUntil = Date.now() + 600;
-      const el = document.getElementById("destinations");
-      if (!el) return;
-      const frameMargin = window.innerWidth >= 768 ? 16 : 8;
-      const collapsedNavbarBottom = frameMargin + 16 + navbarH;
-      const spacerShrink = window.innerHeight - (navbarH + 40);
-      const futureAbsPos =
-        el.getBoundingClientRect().top + window.scrollY - spacerShrink;
-      const top = Math.max(81, futureAbsPos + 144 - collapsedNavbarBottom - 8);
-      window.scrollTo(0, top);
-    };
-
-    const isInsideScrollable = (target: HTMLElement | null) => {
-      if (!target) return false;
-      return !!target.closest(
-        ".overflow-y-auto, [data-scrollable], [data-destinations-menu], [data-prevent-hero-scroll], .flatpickr-calendar, .flatpickr-monthDropdown-months"
-      );
-    };
-
-    const onWheel = (e: WheelEvent) => {
-      if (isInsideScrollable(e.target as HTMLElement)) return;
-
-      const heroNow = heroVisibleRef.current;
-      if (heroNow && !prevHeroVisible) {
-        heroJumpedRef.current = false;
-        lockUntil = 0;
-      }
-      prevHeroVisible = heroNow;
-      if (e.deltaY <= 0) return;
-      if (heroNow || Date.now() < lockUntil) {
-        e.preventDefault();
-        jump();
-      }
-    };
-
-    let touchStartY = 0;
-    const onTouchStart = (e: TouchEvent) => {
-      if (isInsideScrollable(e.target as HTMLElement)) {
-        touchStartY = 0;
-        return;
-      }
-      touchStartY = e.touches[0].clientY;
-    };
-    const onTouchEnd = (e: TouchEvent) => {
-      if (touchStartY === 0 || !heroVisibleRef.current) return;
-      if (touchStartY - e.changedTouches[0].clientY > 30) jump();
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      const target = document.activeElement as HTMLElement | null;
-      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable || isInsideScrollable(target))) {
-        return;
-      }
-      if (!heroVisibleRef.current) return;
-      if (["ArrowDown", "PageDown", " "].includes(e.key)) {
-        e.preventDefault();
-        jump();
-      }
-    };
-
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchend", onTouchEnd, { passive: true });
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [isHome, navbarH]);
-
-  // Scroll handler — manages scrolled shadow + hero expand/collapse
-  useEffect(() => {
+    let ticking = false;
     const onScroll = () => {
-      const currentY = window.scrollY;
-      setScrolled(currentY > 20);
-      if (isHome) {
-        const scrollingDown = currentY > lastScrollY.current;
-        if (scrollingDown && currentY > 80) setHeroVisible(false);
-        if (!scrollingDown && currentY < 20) setHeroVisible(true);
-        lastScrollY.current = currentY;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentY = window.scrollY;
+          setScrolled(currentY > 20);
+          if (isHome) {
+            const scrollingDown = currentY > lastScrollY.current;
+            if (scrollingDown && currentY > 60) {
+              setHeroVisible(false);
+            } else if (!scrollingDown && currentY < 25) {
+              setHeroVisible(true);
+            }
+            lastScrollY.current = currentY;
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
+
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHome]);
@@ -297,12 +247,12 @@ export default function HeroNavbar({
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
         style={{ willChange: "transform, opacity" }}
-        className="fixed top-0 left-0 right-0 z-70 mt-2 md:mt-3 lg:mt-4 px-3 md:px-5 pointer-events-none flex justify-center"
+        className="fixed top-0 left-0 right-0 z-70 mt-2 md:mt-3 lg:mt-4 px-3 md:px-8 pointer-events-none flex justify-center"
       >
         <motion.div
           animate={{
             height: isExpanded ? "95svh" : `${navbarH}px`,
-            marginTop: isExpanded ? 0 : 4,
+            marginTop: isExpanded ? 0 : 0,
           }}
           transition={{ duration: HERO_DURATION, ease: HERO_EASE }}
           className="relative overflow-hidden border border-white/10 rounded-[12px] w-full max-w-[1920px] mx-auto pointer-events-auto flex flex-col"
@@ -327,7 +277,8 @@ export default function HeroNavbar({
 
           {/* ── TOP NAV BAR ROW ──────────────────────────────────────────────── */}
           <div
-            className="relative z-10 flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-14 h-[72px] sm:h-[80px] md:h-[90px] shrink-0"
+            ref={navRowRef}
+            className="relative z-10 flex items-center justify-between px-5 md:px-8 lg:px-15 h-[74px] sm:h-[82px] md:h-[90px] lg:h-[94px] shrink-0"
           >
             {/* Left navigation links */}
             <nav className="hidden lg:flex items-center gap-8 flex-1">
@@ -387,12 +338,12 @@ export default function HeroNavbar({
             {/* Center logo */}
             <Link
               href="/"
-              className="absolute left-4 sm:left-6 md:left-1/2 md:-translate-x-1/2 flex items-center justify-center py-1 md:py-2"
+              className="absolute left-5 md:left-1/2 md:-translate-x-1/2 flex items-center justify-center"
             >
               <img
                 src="/assets/logo.png"
                 alt="Kattil — The Homely Reset"
-                className="object-contain h-[38px] sm:h-[44px] md:h-[50px] lg:h-[58px] transition-all duration-300 drop-shadow-md"
+                className="object-contain h-12 md:h-14.5 lg:h-17 transition-all duration-300 drop-shadow-md"
               />
             </Link>
 
@@ -420,7 +371,7 @@ export default function HeroNavbar({
 
             {/* Mobile menu button */}
             <button
-              className="lg:hidden ml-auto relative z-20 flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white/10 bg-white/5 transition-all duration-200 hover:border-white/30 hover:bg-white/10"
+              className="lg:hidden ml-auto relative z-20 flex items-center justify-center w-10 h-10 rounded-full border border-white/10 bg-white/4 transition-all duration-200 hover:border-white/30 hover:bg-white/8"
               onClick={() => setMobileOpen((prev) => !prev)}
               aria-label="Toggle Menu"
             >
@@ -636,6 +587,7 @@ export default function HeroNavbar({
       <motion.div
         animate={{ height: isHome && heroVisible ? "100svh" : `${navbarH + 40}px` }}
         transition={{ duration: HERO_DURATION, ease: HERO_EASE }}
+        style={{ willChange: "height" }}
         aria-hidden
       />
 
