@@ -104,11 +104,11 @@ export default function DestinationsDropdown({
           className="absolute left-0 right-0 z-80 mx-auto w-full max-w-[1280px] px-3 md:px-5 pointer-events-auto"
         >
           {/* Bridge padding zone */}
-          <div className="absolute -top-4 left-0 right-0 h-4 bg-transparent" />
+          <div className="absolute -top-6 left-0 right-0 h-6 bg-transparent" />
 
           {/* White Mega Menu Card */}
           <div
-            className="w-full rounded-2xl md:rounded-[22px] bg-white border border-slate-100 p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.18)] backdrop-blur-md"
+            className="w-full rounded-[8px] bg-white border border-slate-100 p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.18)]"
             style={{
               backgroundColor: "#ffffff",
             }}
@@ -131,10 +131,10 @@ export default function DestinationsDropdown({
                     key={dest._id || dest.slug}
                     href={targetLink}
                     onClick={onItemClick}
-                    className="group flex items-center gap-4 p-2.5 -m-2.5 rounded-xl transition-all duration-200 hover:bg-slate-50/80 active:scale-[0.99]"
+                    className="group flex items-center gap-4 p-2.5 -m-2.5 rounded-[8px] transition-all duration-200 hover:bg-slate-50/80 active:scale-[0.99]"
                   >
                     {/* Thumbnail */}
-                    <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-[12px] overflow-hidden bg-slate-100 shrink-0 border border-slate-100/80 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                    <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-[8px] overflow-hidden bg-slate-100 shrink-0 border border-slate-100/80 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
                       {imgSrc ? (
                         <Image
                           src={imgSrc}
@@ -212,7 +212,7 @@ export function MobileDestinationsList({
             key={dest._id || dest.slug}
             href={targetLink}
             onClick={onItemClick}
-            className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+            className="flex items-center gap-3 p-2 rounded-[8px] bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
           >
             <div className="relative w-11 h-11 rounded-[8px] overflow-hidden bg-white/10 shrink-0">
               <Image

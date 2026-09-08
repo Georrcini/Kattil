@@ -88,7 +88,7 @@ export default function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.55, ease: EASE }}
       style={{ willChange: "transform, opacity" }}
-      className="fixed top-0 left-0 right-0 z-70 mt-4 md:mt-6 lg:mt-8 px-3 md:px-8"
+      className="fixed top-0 left-0 right-0 z-70 mt-2 md:mt-3 lg:mt-4 px-3 md:px-8"
     >
       {/* ── Expanding container ───────────────────────────────────────────────── */}
       <motion.div

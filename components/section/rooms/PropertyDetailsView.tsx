@@ -92,11 +92,11 @@ export default function PropertyDetailsView({ data }: { data: PropertyDetailsDat
     data.heroImages && data.heroImages.length > 0
       ? data.heroImages
       : [
-          "/assets/ac-double-room.webp",
-          "/assets/deluxe-garden-suite.webp",
-          "/assets/six-bed-dormitory.webp",
-          "/assets/non-ac-double-room.webp",
-        ];
+        "/assets/ac-double-room.webp",
+        "/assets/deluxe-garden-suite.webp",
+        "/assets/six-bed-dormitory.webp",
+        "/assets/non-ac-double-room.webp",
+      ];
 
   const handlePrevSlide = () => {
     setActiveSlide((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -127,9 +127,8 @@ export default function PropertyDetailsView({ data }: { data: PropertyDetailsDat
               {images.map((img, idx) => (
                 <div
                   key={idx}
-                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                    idx === activeSlide ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
-                  }`}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${idx === activeSlide ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
+                    }`}
                 >
                   <Image
                     src={img}
@@ -168,9 +167,8 @@ export default function PropertyDetailsView({ data }: { data: PropertyDetailsDat
                         key={dotIdx}
                         type="button"
                         onClick={() => setActiveSlide(dotIdx)}
-                        className={`h-2 rounded-full transition-all cursor-pointer ${
-                          dotIdx === activeSlide ? "w-6 bg-white" : "w-2 bg-white/50"
-                        }`}
+                        className={`h-2 rounded-full transition-all cursor-pointer ${dotIdx === activeSlide ? "w-6 bg-white" : "w-2 bg-white/50"
+                          }`}
                         aria-label={`Go to slide ${dotIdx + 1}`}
                       />
                     ))}
@@ -237,8 +235,8 @@ export default function PropertyDetailsView({ data }: { data: PropertyDetailsDat
                       (rIdx === 0
                         ? "Private room"
                         : rIdx === 1
-                        ? "Dormitory"
-                        : "Private rooms");
+                          ? "Dormitory"
+                          : "Private rooms");
                     const roomAmenities =
                       room.amenities && room.amenities.length > 0
                         ? room.amenities

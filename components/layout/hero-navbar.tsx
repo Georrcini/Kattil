@@ -108,14 +108,44 @@ export default function HeroNavbar({
   const lastScrollY = useRef(0);
   const heroJumpedRef = useRef(false);
   const heroVisibleRef = useRef(heroVisible);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navbarH = NAVBAR_H_DEFAULT;
+
+  const handleDestinationsMouseEnter = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setDestinationsOpen(true);
+  }, []);
+
+  const handleDestinationsMouseLeave = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setDestinationsOpen(false);
+    }, 180);
+  }, []);
 
   const toggleDestinations = useCallback((e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     setDestinationsOpen((prev) => !prev);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -154,7 +184,7 @@ export default function HeroNavbar({
       lockUntil = Date.now() + 600;
       const el = document.getElementById("destinations");
       if (!el) return;
-      const frameMargin = window.innerWidth >= 768 ? 20 : 12;
+      const frameMargin = window.innerWidth >= 768 ? 16 : 8;
       const collapsedNavbarBottom = frameMargin + 16 + navbarH;
       const spacerShrink = window.innerHeight - (navbarH + 40);
       const futureAbsPos =
@@ -163,7 +193,16 @@ export default function HeroNavbar({
       window.scrollTo(0, top);
     };
 
+    const isInsideScrollable = (target: HTMLElement | null) => {
+      if (!target) return false;
+      return !!target.closest(
+        ".overflow-y-auto, [data-scrollable], [data-destinations-menu], [data-prevent-hero-scroll], .flatpickr-calendar, .flatpickr-monthDropdown-months"
+      );
+    };
+
     const onWheel = (e: WheelEvent) => {
+      if (isInsideScrollable(e.target as HTMLElement)) return;
+
       const heroNow = heroVisibleRef.current;
       if (heroNow && !prevHeroVisible) {
         heroJumpedRef.current = false;
@@ -179,13 +218,21 @@ export default function HeroNavbar({
 
     let touchStartY = 0;
     const onTouchStart = (e: TouchEvent) => {
+      if (isInsideScrollable(e.target as HTMLElement)) {
+        touchStartY = 0;
+        return;
+      }
       touchStartY = e.touches[0].clientY;
     };
     const onTouchEnd = (e: TouchEvent) => {
-      if (!heroVisibleRef.current) return;
+      if (touchStartY === 0 || !heroVisibleRef.current) return;
       if (touchStartY - e.changedTouches[0].clientY > 30) jump();
     };
     const onKeyDown = (e: KeyboardEvent) => {
+      const target = document.activeElement as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable || isInsideScrollable(target))) {
+        return;
+      }
       if (!heroVisibleRef.current) return;
       if (["ArrowDown", "PageDown", " "].includes(e.key)) {
         e.preventDefault();
@@ -250,24 +297,21 @@ export default function HeroNavbar({
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
         style={{ willChange: "transform, opacity" }}
-        className="fixed top-0 left-0 right-0 z-70 m-3 md:m-5"
+        className="fixed top-0 left-0 right-0 z-70 mt-2 md:mt-3 lg:mt-4 px-3 md:px-5 pointer-events-none flex justify-center"
       >
         <motion.div
           animate={{
             height: isExpanded ? "95svh" : `${navbarH}px`,
-            marginTop: isExpanded ? 0 : 12,
-            marginLeft: isExpanded ? 0 : 8,
-            marginRight: isExpanded ? 0 : 8,
+            marginTop: isExpanded ? 0 : 4,
           }}
           transition={{ duration: HERO_DURATION, ease: HERO_EASE }}
-          className="relative overflow-hidden border border-white/10 rounded-[12px]"
+          className="relative overflow-hidden border border-white/10 rounded-[12px] w-full max-w-[1920px] mx-auto pointer-events-auto flex flex-col"
           style={{
             backgroundColor: scrolled && !isExpanded ? "rgba(13, 27, 46, 0.94)" : "#0d1b2e",
             backdropFilter: scrolled && !isExpanded ? "blur(16px)" : "none",
             boxShadow: scrolled && !isExpanded ? "0 10px 35px rgba(0,0,0,0.4)" : "none",
             transition:
               "background-color 0.5s ease, backdrop-filter 0.5s ease, box-shadow 0.5s ease",
-            maxWidth: "1920px",
           }}
         >
           {/* Overlay Texture */}
@@ -283,7 +327,7 @@ export default function HeroNavbar({
 
           {/* ── TOP NAV BAR ROW ──────────────────────────────────────────────── */}
           <div
-            className="relative z-10 flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-14 h-[72px] sm:h-[80px] md:h-[90px]"
+            className="relative z-10 flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-14 h-[72px] sm:h-[80px] md:h-[90px] shrink-0"
           >
             {/* Left navigation links */}
             <nav className="hidden lg:flex items-center gap-8 flex-1">
@@ -292,11 +336,19 @@ export default function HeroNavbar({
                 const isActive = isDestinations
                   ? isDestinationsRoute(pathname)
                   : link.href !== "" &&
-                    ((link.href === "/" && isHome) ||
-                      (link.href !== "/" && pathname.startsWith(link.href)));
+                  ((link.href === "/" && isHome) ||
+                    (link.href !== "/" && pathname.startsWith(link.href)));
 
                 return (
-                  <div key={link.label} className="relative py-2">
+                  <div
+                    key={link.label}
+                    className="relative py-2"
+                    onMouseEnter={isDestinations ? handleDestinationsMouseEnter : () => {
+                      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                      setDestinationsOpen(false);
+                    }}
+                    onMouseLeave={isDestinations ? handleDestinationsMouseLeave : undefined}
+                  >
                     {isDestinations ? (
                       <button
                         type="button"
@@ -411,13 +463,14 @@ export default function HeroNavbar({
                 pointerEvents: heroVisible ? "auto" : "none",
                 willChange: "transform, opacity",
               }}
-              className="relative z-10 px-4 sm:px-6 md:px-12 lg:px-20 pb-6 sm:pb-8 md:pb-12 flex flex-col items-center justify-center text-center pt-0 sm:pt-4 md:pt-14 lg:pt-16 flex-1 min-h-[calc(95svh-76px)] md:min-h-0">
+              className="relative z-10 px-4 sm:px-6 md:px-12 lg:px-20 pt-1 sm:pt-2 md:pt-3 pb-6 flex flex-col items-center justify-start text-center flex-1 w-full mt-1 sm:mt-2 md:mt-3"
+            >
               {/* Eyebrow */}
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: heroVisible ? 1 : 0, y: heroVisible ? 0 : 10 }}
                 transition={{ delay: 0.4, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                className="text-[11px] sm:text-xs md:text-[13px] font-semibold text-white/90 uppercase tracking-[0.14em] mb-2 sm:mb-2.5 font-sans"
+                className="text-[11px] sm:text-xs md:text-[13px] font-semibold text-white/90 uppercase tracking-[0.14em] mb-1 sm:mb-1.5 font-sans"
               >
                 {heroEyebrow || "THE HOMELY RESET"}
               </motion.p>
@@ -427,7 +480,7 @@ export default function HeroNavbar({
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: heroVisible ? 1 : 0, y: heroVisible ? 0 : 14 }}
                 transition={{ delay: 0.48, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="mb-8 sm:mb-10 md:mb-12 lg:mb-14 xl:mb-16"
+                className="mb-2.5 sm:mb-3.5 md:mb-4 lg:mb-5"
               >
                 <h1 className="text-white text-[26px] sm:text-[30px] md:text-[42px] lg:text-[46px] leading-[1.14] sm:leading-[1.12] tracking-[-0.5px] sm:tracking-[-1px] text-center">
 
@@ -475,7 +528,7 @@ export default function HeroNavbar({
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: heroVisible ? 1 : 0, y: heroVisible ? 0 : 14 }}
                 transition={{ delay: 0.68, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="flex justify-center w-full mt-3 sm:mt-5 md:mt-8"
+                className="flex justify-center w-full mt-2.5 sm:mt-3 md:mt-4 lg:mt-5"
               >
                 {/* Mobile: Ticker */}
                 <div className="block md:hidden w-full">
@@ -567,7 +620,15 @@ export default function HeroNavbar({
         <DestinationsDropdown
           isOpen={destinationsOpen}
           topOffset={isExpanded ? navbarH + 8 : navbarH + 16}
-          onItemClick={() => setDestinationsOpen(false)}
+          onMouseEnter={handleDestinationsMouseEnter}
+          onMouseLeave={handleDestinationsMouseLeave}
+          onItemClick={() => {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
+            setDestinationsOpen(false);
+          }}
         />
       </motion.header>
 
@@ -616,8 +677,8 @@ export default function HeroNavbar({
                   const isActive = isDestinations
                     ? isDestinationsRoute(pathname)
                     : link.href !== "" &&
-                      ((link.href === "/" && isHome) ||
-                        (link.href !== "/" && pathname.startsWith(link.href)));
+                    ((link.href === "/" && isHome) ||
+                      (link.href !== "/" && pathname.startsWith(link.href)));
 
                   return (
                     <motion.div
@@ -635,9 +696,8 @@ export default function HeroNavbar({
                           <button
                             type="button"
                             onClick={() => setMobileDestinationsOpen((prev) => !prev)}
-                            className={`flex items-center justify-between w-full text-left text-[24px] sm:text-[28px] font-sans focus:outline-none transition-all hover:font-bold ${
-                              isActive ? "text-emerald-400 font-bold" : "text-white/80 font-medium"
-                            }`}
+                            className={`flex items-center justify-between w-full text-left text-[24px] sm:text-[28px] font-sans focus:outline-none transition-all hover:font-bold ${isActive ? "text-emerald-400 font-bold" : "text-white/80 font-medium"
+                              }`}
                           >
                             <span>{link.label}</span>
                             <span className="text-xs text-[#D2E6BC] font-sans px-2 py-1 rounded bg-white/5">

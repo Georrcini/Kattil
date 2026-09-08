@@ -1,11 +1,29 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Calendar, ChevronDown, Check, Search, X } from "lucide-react";
+import {
+  Building2,
+  Calendar,
+  ChevronDown,
+  Check,
+  Search,
+  X,
+  MapPin,
+  Sparkles,
+  Info,
+} from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-export type PropertyValue = "kattil" | "kattilchennai" | "kattilcoimbatore";
+export interface HotelPlaceItem {
+  id: string;
+  name: string; // e.g. "Kattil Chennai"
+  place: string; // e.g. "Chennai"
+  state: string; // e.g. "Tamil Nadu"
+  slug: string;
+  hotelValue: string;
+  hotelCount?: string;
+}
 
 interface FpInstance {
   destroy: () => void;
@@ -22,19 +40,42 @@ declare global {
   }
 }
 
-export const PROPERTIES: { label: string; city: string; value: PropertyValue }[] = [
-  { label: "Kattil Chennai", city: "Chennai", value: "kattilchennai" },
-  { label: "Kattil Madurai", city: "Madurai", value: "kattil" },
-  { label: "Kattil Coimbatore", city: "Coimbatore", value: "kattilcoimbatore" },
+// Default fallback list of places & hotels
+const DEFAULT_HOTEL_PLACES: HotelPlaceItem[] = [
+  {
+    id: "dest-chennai",
+    name: "Kattil Chennai",
+    place: "Chennai",
+    state: "Tamil Nadu",
+    slug: "chennai",
+    hotelValue: "kattilchennai",
+  },
+  {
+    id: "dest-madurai",
+    name: "Kattil Madurai",
+    place: "Madurai",
+    state: "Tamil Nadu",
+    slug: "madurai",
+    hotelValue: "kattil",
+  },
+  {
+    id: "dest-coimbatore",
+    name: "Kattil Coimbatore",
+    place: "Coimbatore",
+    state: "Tamil Nadu",
+    slug: "coimbatore",
+    hotelValue: "kattilcoimbatore",
+  },
+  {
+    id: "dest-colachel",
+    name: "Kattil Colachel",
+    place: "Colachel",
+    state: "Tamil Nadu",
+    slug: "colachel",
+    hotelValue: "kattilcolachel",
+  },
 ];
 
-const MADURAI_ROOMS = [
-  { label: "Bed in Dormitory", value: "6154300000000000001" },
-  { label: "Standard AC Room", value: "6154300000000000002" },
-  { label: "Standard Non A/C", value: "6154300000000000004" },
-];
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function forPost(d: Date | null): string {
   if (!d) return "";
   return `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()}`;
@@ -45,93 +86,136 @@ function formatDateDisplay(d: Date): string {
   return `${d.getDate()} ${months[d.getMonth()]}`;
 }
 
-// ── Widget Component ──────────────────────────────────────────────────────────
+function getHotelValueForSlug(slug: string): string {
+  const s = slug.toLowerCase().trim();
+  if (s === "chennai") return "kattilchennai";
+  if (s === "madurai") return "kattil";
+  if (s === "coimbatore") return "kattilcoimbatore";
+  if (s === "colachel") return "kattilcolachel";
+  if (s === "kanniyakumari") return "kattilkanniyakumari";
+  return `kattil${s}`;
+}
+
+// ── Main Component ────────────────────────────────────────────────────────────
 export default function BookingBarWidget() {
-  const [property, setProperty] = useState<PropertyValue | "">("");
-  const [roomType, setRoomType] = useState("");
+  const [selectedHotel, setSelectedHotel] = useState<HotelPlaceItem | null>(null);
   const [checkin, setCheckin] = useState<Date | null>(null);
   const [checkout, setCheckout] = useState<Date | null>(null);
   const [dateDisplay, setDateDisplay] = useState("");
-  const [propertyDropdownOpen, setPropertyDropdownOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [propertiesList, setPropertiesList] = useState<{ label: string; city: string; value: PropertyValue }[]>(PROPERTIES);
+  const [hotelsList, setHotelsList] = useState<HotelPlaceItem[]>(DEFAULT_HOTEL_PLACES);
+  const [hotelError, setHotelError] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   const dateInputRef = useRef<HTMLInputElement>(null);
+  const dateBoxRef = useRef<HTMLDivElement>(null);
   const fpInstance = useRef<FpInstance | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const isMadurai = property === "kattil";
-  const selectedPropertyObj = propertiesList.find((p) => p.value === property) || PROPERTIES.find((p) => p.value === property);
-
   // Focus search input when dropdown opens
   useEffect(() => {
-    if (propertyDropdownOpen) {
+    if (dropdownOpen) {
       setTimeout(() => {
         searchInputRef.current?.focus();
-      }, 60);
+      }, 50);
     } else {
       setSearchQuery("");
     }
-  }, [propertyDropdownOpen]);
+  }, [dropdownOpen]);
 
-  // Dynamically load active destinations from API
+  // Dynamically load active destinations/hotels from database API
   useEffect(() => {
-    fetch("/api/destinations")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-          const dynamicProps = data.data.map((d: any) => ({
-            label: `Kattil ${d.name}`,
-            city: d.name,
-            value: (d.slug === "chennai"
-              ? "kattilchennai"
-              : d.slug === "madurai"
-                ? "kattil"
-                : d.slug === "coimbatore"
-                  ? "kattilcoimbatore"
-                  : `kattil${d.slug}`) as PropertyValue,
-          }));
-          const merged = [...PROPERTIES];
-          for (const dp of dynamicProps) {
-            if (!merged.some((m) => m.city.toLowerCase() === dp.city.toLowerCase())) {
-              merged.push(dp);
-            }
-          }
-          setPropertiesList(merged);
+    let isMounted = true;
+
+    async function loadDestinations() {
+      try {
+        const res = await fetch("/api/destinations")
+          .then((r) => r.json())
+          .catch(() => ({ success: false }));
+
+        if (!isMounted) return;
+
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const items: HotelPlaceItem[] = res.data.map((d: any) => {
+            const placeName = d.name || "Destination";
+            const slug = d.slug || placeName.toLowerCase();
+            const hotelVal = getHotelValueForSlug(slug);
+
+            return {
+              id: `dest-${d._id || slug}`,
+              name: `Kattil ${placeName}`,
+              place: placeName,
+              state: "Tamil Nadu",
+              slug: slug,
+              hotelValue: hotelVal,
+              hotelCount: d.hotelCount,
+            };
+          });
+
+          setHotelsList(items);
         }
-      })
-      .catch(() => { });
+      } catch (err) {
+        console.warn("Failed to load destinations:", err);
+      }
+    }
+
+    loadDestinations();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // Filter properties based on search query
-  const filteredProperties = propertiesList.filter((p) => {
+  // Filter hotels based on search query
+  const filteredHotels = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    if (!q) return true;
-    return (
-      p.label.toLowerCase().includes(q) ||
-      p.city.toLowerCase().includes(q) ||
-      p.value.toLowerCase().includes(q)
-    );
-  });
+    if (!q) return hotelsList;
+
+    return hotelsList.filter((item) => {
+      return (
+        item.name.toLowerCase().includes(q) ||
+        item.place.toLowerCase().includes(q) ||
+        item.state.toLowerCase().includes(q) ||
+        item.hotelValue.toLowerCase().includes(q)
+      );
+    });
+  }, [hotelsList, searchQuery]);
 
   // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setPropertyDropdownOpen(false);
+        setDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Load Flatpickr once
+  // Initialize Flatpickr for check-in / check-out
   useEffect(() => {
     let alive = true;
 
     function closeFlatpickr() {
       fpInstance.current?.close();
+    }
+
+    function repositionCalendar(instance: any) {
+      const box = dateBoxRef.current || dateInputRef.current;
+      if (!box || !instance?.calendarContainer) return;
+      const rect = box.getBoundingClientRect();
+      instance.calendarContainer.style.position = "absolute";
+      instance.calendarContainer.style.top = `${rect.bottom + window.scrollY + 6}px`;
+      instance.calendarContainer.style.left = `${rect.left + window.scrollX}px`;
+      instance.calendarContainer.style.width = `${rect.width}px`;
+      instance.calendarContainer.style.minWidth = `${rect.width}px`;
+      instance.calendarContainer.style.maxWidth = `${rect.width}px`;
+      instance.calendarContainer.style.boxSizing = "border-box";
+      instance.calendarContainer.style.bottom = "auto";
+      instance.calendarContainer.style.right = "auto";
+      instance.calendarContainer.classList.remove("arrowBottom");
+      instance.calendarContainer.classList.add("arrowTop");
     }
 
     function injectStyle(href: string) {
@@ -170,8 +254,19 @@ export default function BookingBarWidget() {
           dateFormat: "d M Y",
           minDate: today,
           disableMobile: true,
+          position: "below left",
+          positionElement: dateBoxRef.current || dateInputRef.current,
           appendTo: document.body,
           showMonths: 1,
+          onReady(selectedDates, dateStr, instance) {
+            repositionCalendar(instance);
+          },
+          onOpen(selectedDates, dateStr, instance) {
+            repositionCalendar(instance);
+            requestAnimationFrame(() => repositionCalendar(instance));
+            setTimeout(() => repositionCalendar(instance), 10);
+            setTimeout(() => repositionCalendar(instance), 50);
+          },
           onChange(dates: Date[]) {
             if (dates.length === 2) {
               const d1 = new Date(dates[0]);
@@ -181,17 +276,25 @@ export default function BookingBarWidget() {
               setCheckin(d1);
               setCheckout(d2);
               setDateDisplay(`${formatDateDisplay(d1)} - ${formatDateDisplay(d2)}`);
+              setDateError(null);
             } else if (dates.length === 1) {
               const d1 = new Date(dates[0]);
               d1.setHours(0, 0, 0, 0);
               setCheckin(d1);
               setCheckout(null);
               setDateDisplay(`${formatDateDisplay(d1)} - ...`);
+            } else {
+              setCheckin(null);
+              setCheckout(null);
+              setDateDisplay("");
             }
           },
         });
 
         window.addEventListener("scroll", closeFlatpickr, { passive: true });
+        window.addEventListener("resize", () => {
+          if (fpInstance.current) repositionCalendar(fpInstance.current);
+        });
       } catch (e) {
         console.error("[BookingWidget]", e);
       }
@@ -204,19 +307,49 @@ export default function BookingBarWidget() {
     };
   }, []);
 
-  // ── Book Now / Check Availability ───────────────────────────────────────────
+  // Check Availability / Booking handler
   function handleCheckAvailability() {
-    const targetProperty = property || "kattilchennai";
-    const ci = checkin || new Date();
-    const co = checkout || new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+    let hasError = false;
+
+    if (!selectedHotel) {
+      setHotelError("Please select a property or location");
+      setDropdownOpen(true);
+      hasError = true;
+    } else {
+      setHotelError(null);
+    }
+
+    if (!checkin && !checkout) {
+      setDateError("Please select check-in and check-out dates");
+      if (selectedHotel) {
+        fpInstance.current?.open();
+      }
+      hasError = true;
+    } else if (!checkin || !checkout) {
+      setDateError("Please select both check-in and check-out dates");
+      if (selectedHotel) {
+        fpInstance.current?.open();
+      }
+      hasError = true;
+    } else {
+      setDateError(null);
+    }
+
+    if (hasError) {
+      return;
+    }
+
+    const targetHotel = selectedHotel!.hotelValue;
+    const ci = checkin!;
+    const co = checkout!;
 
     const form = document.getElementById("_resBBBox") as HTMLFormElement;
     if (!form) return;
     (document.getElementById("h_chkin") as HTMLInputElement).value = forPost(ci);
     (document.getElementById("h_chkout") as HTMLInputElement).value = forPost(co);
-    (document.getElementById("h_hotel") as HTMLInputElement).value = targetProperty;
-    (document.getElementById("h_room") as HTMLInputElement).value = isMadurai ? roomType : "";
-    form.action = `https://live.ipms247.com/booking/book-rooms-${targetProperty}`;
+    (document.getElementById("h_hotel") as HTMLInputElement).value = targetHotel;
+    (document.getElementById("h_room") as HTMLInputElement).value = "";
+    form.action = `https://live.ipms247.com/booking/book-rooms-${targetHotel}`;
     form.submit();
   }
 
@@ -226,60 +359,105 @@ export default function BookingBarWidget() {
 
       <div className="w-[88%] sm:w-[92%] md:w-full max-w-4xl mx-auto">
         <div className="bg-white rounded-[8px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] p-3 sm:p-4.5 md:p-6 text-left">
-          <form id="_resBBBox" method="post" target="_blank" onSubmit={(e) => { e.preventDefault(); handleCheckAvailability(); }}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr_1fr_236px] items-end gap-2.5 sm:gap-3 md:gap-4 w-full min-w-0">
-              {/* 1. Choose your stay */}
-              <div className="relative" ref={dropdownRef}>
-                <label className="text-[11px] sm:text-xs md:text-[13px] font-semibold text-gray-700 block mb-1 sm:mb-1.5 tracking-tight font-sans">
-                  Choose your stay
-                </label>
+          <form
+            id="_resBBBox"
+            method="post"
+            target="_blank"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleCheckAvailability();
+            }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1fr_1fr_236px] items-start gap-2.5 sm:gap-3 md:gap-4 w-full min-w-0">
+
+              {/* ── 1. Choose your stay ────────────────────────────────────────── */}
+              <motion.div
+                animate={hotelError ? { x: [0, -4, 4, -2, 2, 0] } : {}}
+                transition={{ duration: 0.25 }}
+                className="relative w-full"
+                ref={dropdownRef}
+              >
+                <div className="flex items-center justify-between mb-1 sm:mb-1.5">
+                  <label className="text-[11px] sm:text-xs md:text-[13px] font-semibold text-gray-700 block tracking-tight font-sans">
+                    Choose your stay
+                  </label>
+                  {hotelError && (
+                    <span className="text-[10.5px] font-medium text-[#0E2E4E] bg-[#0E2E4E]/10 px-1.5 py-0.5 rounded-[4px]">
+                      Required
+                    </span>
+                  )}
+                </div>
+
                 <button
                   type="button"
-                  onClick={() => setPropertyDropdownOpen((prev) => !prev)}
-                  className="w-full h-[39px] sm:h-[43px] border-[1px] border-[#E5E7EB] bg-[#F9FAFB] rounded-[6px] px-3.5 sm:px-[16px] py-0 flex items-center justify-between gap-2 transition-all text-left"
+                  onClick={() => setDropdownOpen((prev) => !prev)}
+                  className={`w-full h-[39px] sm:h-[43px] border-[1px] ${
+                    hotelError
+                      ? "border-[#0E2E4E] bg-[#0E2E4E]/[0.03] ring-1 ring-[#0E2E4E]/20"
+                      : "border-[#E5E7EB] bg-[#F9FAFB] hover:bg-gray-50/80"
+                  } rounded-[6px] px-3.5 sm:px-[16px] py-0 flex items-center justify-between gap-2 transition-all text-left`}
                 >
                   <div className="flex items-center gap-2.5 sm:gap-3 overflow-hidden">
-                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 shrink-0 stroke-[1.6]" />
+                    <Building2 className={`w-4 h-4 sm:w-5 sm:h-5 ${hotelError ? "text-[#0E2E4E]" : "text-[#0E2E4E]/70"} shrink-0 stroke-[1.6]`} />
 
                     <span
-                      className={`text-[13px] sm:text-[14px] truncate ${selectedPropertyObj
-                        ? "text-gray-900 font-medium"
-                        : "text-gray-400"
-                        }`}
+                      className={`text-[13px] sm:text-[14px] truncate ${
+                        selectedHotel ? "text-gray-900 font-medium" : "text-gray-400"
+                      }`}
                     >
-                      {selectedPropertyObj
-                        ? `${selectedPropertyObj.city} (${selectedPropertyObj.label})`
+                      {selectedHotel
+                        ? `${selectedHotel.name} (${selectedHotel.place})`
                         : "Select a location or Property"}
                     </span>
                   </div>
 
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${propertyDropdownOpen ? "rotate-180" : ""
-                      }`}
+                    className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${
+                      dropdownOpen ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
 
-                {/* Dropdown Menu */}
+                {/* Required Guidance Message */}
                 <AnimatePresence>
-                  {propertyDropdownOpen && (
+                  {hotelError && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      className="text-[11.5px] sm:text-xs text-[#0E2E4E] mt-1 sm:mt-1.5 font-medium flex items-center gap-1.5 font-sans"
+                    >
+                      <Info className="w-3.5 h-3.5 shrink-0 text-[#0E2E4E]" />
+                      <span>{hotelError}</span>
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+
+                {/* ── Dropdown Menu ────────────────────────────────────────────── */}
+                <AnimatePresence>
+                  {dropdownOpen && (
                     <motion.div
+                      data-prevent-hero-scroll="true"
                       initial={{ opacity: 0, y: 6, scale: 0.98 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 4, scale: 0.98 }}
-                      transition={{ duration: 0.18, ease: "easeOut" }}
-                      className="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 overflow-hidden"
+                      transition={{ duration: 0.16, ease: "easeOut" }}
+                      onWheel={(e) => e.stopPropagation()}
+                      onTouchMove={(e) => e.stopPropagation()}
+                      className="absolute left-0 right-0 top-full mt-1.5 sm:mt-2 bg-white rounded-[8px] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.22)] border border-gray-100 py-1.5 z-50 overflow-hidden"
                     >
-                      {/* Search Input Bar */}
-                      <div className="px-3 pb-2 pt-1 border-b border-gray-100">
+                      {/* Search Bar */}
+                      <div className="px-2.5 pb-1.5 pt-0.5 border-b border-gray-100">
                         <div className="relative flex items-center">
-                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
                           <input
                             ref={searchInputRef}
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search city or property..."
-                            className="w-full h-8.5 pl-8 pr-7 text-[13px] bg-gray-50 border border-gray-200 rounded-lg outline-none focus:bg-white focus:border-[#0E2E4E] transition-colors text-gray-800 placeholder-gray-400 font-sans"
+                            placeholder="Search place or hotel..."
+                            className="w-full h-8 pl-8 pr-7 text-[12.5px] sm:text-[13px] bg-gray-50 border border-gray-200 rounded-[8px] outline-none focus:bg-white focus:border-[#0E2E4E] transition-colors text-gray-800 placeholder-gray-400 font-sans"
                             onClick={(e) => e.stopPropagation()}
                           />
                           {searchQuery && (
@@ -298,34 +476,55 @@ export default function BookingBarWidget() {
                         </div>
                       </div>
 
-                      <div className="px-3 py-1.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                        {filteredProperties.length > 0 ? "Available Locations" : "No matches"}
+                      {/* Header Info */}
+                      <div className="px-3 py-1 flex items-center justify-between text-[10.5px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50/50">
+                        <span>Places & Hotels</span>
+                        <span className="text-[10px] text-gray-400 font-medium lowercase">
+                          {filteredHotels.length} {filteredHotels.length === 1 ? "location" : "locations"}
+                        </span>
                       </div>
 
-                      <div className="max-h-56 overflow-y-auto">
-                        {filteredProperties.length === 0 ? (
+                      {/* Scrollable Hotels / Places List */}
+                      <div
+                        data-prevent-hero-scroll="true"
+                        className="booking-dropdown-scrollbar max-h-[175px] sm:max-h-[195px] md:max-h-[210px] overflow-y-auto overscroll-contain px-1.5 pt-1 pb-1.5 space-y-0.5"
+                        onWheel={(e) => e.stopPropagation()}
+                        onTouchMove={(e) => e.stopPropagation()}
+                      >
+                        {filteredHotels.length === 0 ? (
                           <div className="py-6 px-4 text-center text-xs text-gray-400 font-sans">
-                            No locations matching &ldquo;{searchQuery}&rdquo;
+                            No hotels found matching &ldquo;{searchQuery}&rdquo;
                           </div>
                         ) : (
-                          filteredProperties.map((p) => {
-                            const isSelected = property === p.value;
+                          filteredHotels.map((hotel) => {
+                            const isSelected = selectedHotel?.id === hotel.id;
+
                             return (
                               <button
-                                key={p.value}
+                                key={hotel.id}
                                 type="button"
                                 onClick={() => {
-                                  setProperty(p.value);
-                                  setPropertyDropdownOpen(false);
+                                  setSelectedHotel(hotel);
+                                  setHotelError(null);
+                                  setDropdownOpen(false);
                                 }}
-                                className={`w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors ${isSelected ? "bg-emerald-50/70 text-gray-900 font-medium" : "text-gray-700"
+                                className={`w-full px-2.5 py-2 flex items-center justify-between text-left hover:bg-gray-50 transition-all rounded-[8px] ${isSelected ? "bg-emerald-50 text-gray-900 font-semibold" : "text-gray-700"
                                   }`}
                               >
-                                <div className="flex flex-col">
-                                  <span className="text-[14px] leading-tight font-medium text-gray-900">{p.label}</span>
-                                  <span className="text-[12px] text-gray-500 leading-tight mt-0.5">{p.city}, Tamil Nadu</span>
+                                <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                                  <div className="w-7 h-7 rounded-[8px] bg-[#0E2E4E]/10 flex items-center justify-center shrink-0">
+                                    <MapPin className="w-3.5 h-3.5 text-[#0E2E4E]" />
+                                  </div>
+                                  <div className="flex flex-col min-w-0">
+                                    <span className="text-[13px] sm:text-[13.5px] font-medium text-gray-900 truncate leading-tight">
+                                      {hotel.name}
+                                    </span>
+                                    <span className="text-[11px] sm:text-[11.5px] text-gray-400 truncate leading-tight mt-0.5">
+                                      {hotel.place}, {hotel.state}
+                                    </span>
+                                  </div>
                                 </div>
-                                {isSelected && <Check className="w-4 h-4 text-emerald-600 shrink-0" />}
+                                {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
                               </button>
                             );
                           })
@@ -334,19 +533,35 @@ export default function BookingBarWidget() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
 
-              {/* 2. Check In & Out */}
-              <div className="relative">
-                <label className="text-[11px] sm:text-xs md:text-[13px] font-semibold text-gray-700 block mb-1 sm:mb-1.5 tracking-tight font-sans">
-                  Check In & Out
-                </label>
+              {/* ── 2. Check In & Out ─────────────────────────────────────────── */}
+              <motion.div
+                animate={dateError ? { x: [0, -4, 4, -2, 2, 0] } : {}}
+                transition={{ duration: 0.25 }}
+                className="relative w-full"
+              >
+                <div className="flex items-center justify-between mb-1 sm:mb-1.5">
+                  <label className="text-[11px] sm:text-xs md:text-[13px] font-semibold text-gray-700 block tracking-tight font-sans">
+                    Check In & Out
+                  </label>
+                  {dateError && (
+                    <span className="text-[10.5px] font-medium text-[#0E2E4E] bg-[#0E2E4E]/10 px-1.5 py-0.5 rounded-[4px]">
+                      Required
+                    </span>
+                  )}
+                </div>
 
                 <div
+                  ref={dateBoxRef}
                   onClick={() => fpInstance.current?.open()}
-                  className="w-full h-[39px] sm:h-[43px] border-[1px] border-[#E5E7EB] bg-[#F9FAFB] rounded-[6px] px-3.5 sm:px-[16px] flex items-center gap-2.5 sm:gap-3 transition-all cursor-pointer"
+                  className={`w-full h-[39px] sm:h-[43px] border-[1px] ${
+                    dateError
+                      ? "border-[#0E2E4E] bg-[#0E2E4E]/[0.03] ring-1 ring-[#0E2E4E]/20"
+                      : "border-[#E5E7EB] bg-[#F9FAFB] hover:bg-gray-50/80"
+                  } rounded-[6px] px-3.5 sm:px-[16px] flex items-center gap-2.5 sm:gap-3 transition-all cursor-pointer`}
                 >
-                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 shrink-0 stroke-[1.6]" />
+                  <Calendar className={`w-4 h-4 sm:w-5 sm:h-5 ${dateError ? "text-[#0E2E4E]" : "text-gray-400"} shrink-0 stroke-[1.6]`} />
 
                   <input
                     ref={dateInputRef}
@@ -357,33 +572,54 @@ export default function BookingBarWidget() {
                     className="w-full bg-transparent text-[13px] sm:text-[14px] text-gray-900 font-medium outline-none cursor-pointer placeholder-gray-400 font-sans"
                   />
                 </div>
-              </div>
 
-              {/* 3. Check Availability CTA */}
+                {/* Required Guidance Message */}
+                <AnimatePresence>
+                  {dateError && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      className="text-[11.5px] sm:text-xs text-[#0E2E4E] mt-1 sm:mt-1.5 font-medium flex items-center gap-1.5 font-sans"
+                    >
+                      <Info className="w-3.5 h-3.5 shrink-0 text-[#0E2E4E]" />
+                      <span>{dateError}</span>
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* ── 3. Check Availability CTA ─────────────────────────────────── */}
               <div className="w-full md:w-auto">
+                <label className="hidden lg:block text-[11px] sm:text-xs md:text-[13px] font-semibold opacity-0 select-none mb-1 sm:mb-1.5 font-sans pointer-events-none">
+                  &nbsp;
+                </label>
                 <motion.button
                   type="submit"
                   whileHover={{ scale: 1.015 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.16 }}
                   className="
-      w-full md:w-[236px]
-      h-[42px] sm:h-[46px]
-      bg-[#0E2E4E]
-      text-white
-      text-[13px] sm:text-[14px]
-      font-semibold
-      rounded-[6px]
-      px-4 sm:px-[32px]
-      py-2 sm:py-[12px]
-      flex items-center justify-center
-      gap-[8px]
-      whitespace-nowrap
-      shadow-md
-      transition-all
-      cursor-pointer
-    "
+                    w-full md:w-[236px]
+                    h-[39px] sm:h-[43px]
+                    bg-[#0E2E4E]
+                    hover:bg-[#143d66]
+                    text-white
+                    text-[13px] sm:text-[14px]
+                    font-semibold
+                    rounded-[6px]
+                    px-4 sm:px-[32px]
+                    py-2 sm:py-[12px]
+                    flex items-center justify-center
+                    gap-[8px]
+                    whitespace-nowrap
+                    shadow-md
+                    transition-all
+                    cursor-pointer
+                  "
                 >
+                  <Sparkles className="w-3.5 h-3.5 opacity-80" />
                   Check Availability
                 </motion.button>
               </div>
@@ -393,8 +629,18 @@ export default function BookingBarWidget() {
             {/* Hidden POST fields for IPMS engine */}
             <input type="hidden" id="h_chkin" name="eZ_chkin" />
             <input type="hidden" id="h_chkout" name="eZ_chkout" />
-            <input type="hidden" id="h_hotel" name="select_hotel" value={property || "kattilchennai"} />
-            <input type="hidden" id="h_room" name="roomtypeunkid" value={isMadurai ? roomType : ""} />
+            <input
+              type="hidden"
+              id="h_hotel"
+              name="select_hotel"
+              value={selectedHotel?.hotelValue || "kattilchennai"}
+            />
+            <input
+              type="hidden"
+              id="h_room"
+              name="roomtypeunkid"
+              value=""
+            />
             <input type="hidden" name="eZ_adult" value="1" />
             <input type="hidden" name="eZ_child" value="0" />
             <input type="hidden" name="eZ_Nights" value="1" />
@@ -407,33 +653,73 @@ export default function BookingBarWidget() {
   );
 }
 
-// ── Flatpickr custom brand styling ────────────────────────────────────────────
+// ── Custom brand styling ───────────────────────────────────────────────────
 const STYLES = `
-  .flatpickr-calendar {
-    border-radius: 18px !important;
-    box-shadow: 0 25px 60px -10px rgba(0,0,0,0.25), 0 10px 24px -5px rgba(0,0,0,0.1) !important;
-    border: 1px solid rgba(0,0,0,0.06) !important;
-    font-family: var(--font-inter), system-ui, sans-serif !important;
-    padding: 12px !important;
-    width: 320px !important;
+  .booking-dropdown-scrollbar::-webkit-scrollbar {
+    width: 6px;
   }
+  .booking-dropdown-scrollbar::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 8px;
+    margin: 4px 0;
+  }
+  .booking-dropdown-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+  }
+  .booking-dropdown-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  .flatpickr-calendar {
+    border-radius: 8px !important;
+    box-shadow: 0 20px 50px -10px rgba(0,0,0,0.22), 0 10px 24px -5px rgba(0,0,0,0.08) !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+    font-family: var(--font-inter), system-ui, sans-serif !important;
+    padding: 6px 8px !important;
+    box-sizing: border-box !important;
+    z-index: 99999 !important;
+  }
+  .flatpickr-calendar:before,
+  .flatpickr-calendar:after,
   .flatpickr-calendar.arrowTop:before,
-  .flatpickr-calendar.arrowTop:after { display: none !important; }
+  .flatpickr-calendar.arrowTop:after,
+  .flatpickr-calendar.arrowBottom:before,
+  .flatpickr-calendar.arrowBottom:after { 
+    display: none !important; 
+  }
+
+  .flatpickr-innerContainer,
+  .flatpickr-rContainer,
+  .flatpickr-days,
+  .dayContainer {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .dayContainer {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    justify-items: center !important;
+    align-items: center !important;
+  }
 
   .flatpickr-months {
     background: transparent !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 2px !important;
+    width: 100% !important;
   }
   .flatpickr-month {
-    height: 40px !important;
+    height: 28px !important;
     color: #0d1b2e !important;
   }
 
   .flatpickr-current-month {
-    font-size: 15px !important;
+    font-size: 13.5px !important;
     font-weight: 700 !important;
     color: #0d1b2e !important;
-    padding-top: 6px !important;
+    padding-top: 0px !important;
   }
   .flatpickr-current-month .flatpickr-monthDropdown-months,
   .flatpickr-current-month input.cur-year {
@@ -444,8 +730,8 @@ const STYLES = `
   .flatpickr-prev-month, .flatpickr-next-month {
     fill: #0d1b2e !important;
     color: #0d1b2e !important;
-    padding: 8px !important;
-    border-radius: 8px !important;
+    padding: 2px 4px !important;
+    border-radius: 4px !important;
   }
   .flatpickr-prev-month:hover, .flatpickr-next-month:hover {
     background: #f1f5f9 !important;
@@ -453,23 +739,47 @@ const STYLES = `
 
   .flatpickr-weekdays {
     background: transparent !important;
-    margin-bottom: 6px !important;
+    margin-bottom: 2px !important;
+    width: 100% !important;
+    display: flex !important;
+  }
+  .flatpickr-weekdaycontainer {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    justify-items: center !important;
   }
   .flatpickr-weekday {
     color: #94a3b8 !important;
-    font-size: 11px !important;
+    font-size: 10px !important;
     font-weight: 600 !important;
     text-transform: uppercase !important;
+    width: 100% !important;
+    text-align: center !important;
   }
 
   .flatpickr-day {
-    font-size: 13px !important;
+    font-size: 11.5px !important;
     font-weight: 500 !important;
-    border-radius: 10px !important;
+    border-radius: 6px !important;
     color: #1e293b !important;
-    height: 36px !important;
-    line-height: 36px !important;
-    margin: 2px 0 !important;
+    height: 26px !important;
+    width: 26px !important;
+    max-width: 26px !important;
+    line-height: 26px !important;
+    margin: 0.5px 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  @media (max-width: 640px) {
+    .flatpickr-day {
+      height: 24px !important;
+      width: 24px !important;
+      max-width: 24px !important;
+      line-height: 24px !important;
+      font-size: 11px !important;
+    }
   }
   .flatpickr-day:hover {
     background: #f1f5f9 !important;
@@ -497,4 +807,6 @@ const STYLES = `
     color: #cbd5e1 !important;
   }
 `;
+
+
 
