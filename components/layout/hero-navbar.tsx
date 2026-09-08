@@ -463,7 +463,7 @@ export default function HeroNavbar({
                 pointerEvents: heroVisible ? "auto" : "none",
                 willChange: "transform, opacity",
               }}
-              className="relative z-10 px-4 sm:px-6 md:px-12 lg:px-20 pt-1 sm:pt-2 md:pt-3 pb-6 flex flex-col items-center justify-start text-center flex-1 w-full mt-1 sm:mt-2 md:mt-3"
+              className="relative z-10 px-4 sm:px-6 md:px-12 lg:px-20 pt-[80px] md:pt-[80px] lg:pt-3 pb-6 flex flex-col items-center justify-start text-center flex-1 w-full mt-0 lg:mt-3"
             >
               {/* Eyebrow */}
               <motion.p
