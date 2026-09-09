@@ -247,7 +247,7 @@ export default function HeroNavbar({
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
         style={{ willChange: "transform, opacity" }}
-        className="fixed top-0 left-0 right-0 z-70 mt-2 md:mt-3 lg:mt-4 px-3 md:px-8 pointer-events-none flex justify-center"
+        className="fixed top-0 left-0 right-0 z-70 mt-2 md:mt-3 lg:mt-4 px-3 md:px-5 pointer-events-none flex justify-center"
       >
         <motion.div
           animate={{
@@ -585,7 +585,7 @@ export default function HeroNavbar({
 
       {/* ── Page spacer — pushes content below the fixed header (Matches kattil.in) ─── */}
       <motion.div
-        animate={{ height: isHome && heroVisible ? "100svh" : `${navbarH + 40}px` }}
+        animate={{ height: isHome && heroVisible ? "100svh" : `${navbarH + 32}px` }}
         transition={{ duration: HERO_DURATION, ease: HERO_EASE }}
         style={{ willChange: "height" }}
         aria-hidden

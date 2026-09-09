@@ -121,11 +121,10 @@ export default function AboutContent({ about }: { about: AboutData | null }) {
 
       {/* ================= 2. STORY SECTION (WARM CREAM) ================= */}
       <section className="relative z-20 rounded-t-[20px] bg-[#FAF8F2] overflow-hidden -mt-2">
-        <div className="w-full max-w-[1920px] mx-auto px-3 md:px-8 pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-14 sm:pb-18 md:pb-24">
+        <div className="w-full max-w-[1920px] mx-auto px-3 md:px-8 pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-14 sm:pb-18 md:pb-24">
           <div className="px-5 md:px-8 lg:px-15">
             {/* Top Story: Text on Left, Photo on Right aligned with Book Now */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12 lg:gap-12 xl:gap-16 items-center">
-              {/* Left Text */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12 lg:gap-12 xl:gap-16 items-center mt-8">              {/* Left Text */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}

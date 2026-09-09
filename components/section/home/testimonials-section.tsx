@@ -154,7 +154,7 @@ export default function TestimonialsSection() {
 
   return (
     <section className="w-full bg-transparent pt-10 pb-16 md:pt-18 md:pb-28 overflow-x-hidden">
-      <div className="w-full max-w-[1920px] mx-auto px-3 md:px-8">
+      <div className="w-full max-w-[1920px] mx-auto px-3 md:px-5">
         <div className="px-4 sm:px-6 md:px-8 lg:px-12">
           {/* Section Heading */}
           <motion.div

@@ -37,7 +37,7 @@ export default function DestinationsSection() {
   return (
     <section
       id="destinations"
-      className="bg-transparent pt-16 sm:pt-28 md:pt-36 pb-10 md:pb-20 lg:pt-36 lg:pb-28 mt-8 sm:mt-16 md:mt-25 scroll-mt-[110px] 2xl:scroll-mt-[135px]"
+      className="bg-transparent pt-20 sm:pt-24 md:pt-28 pb-10 md:pb-20 lg:pb-24 scroll-mt-[120px] 2xl:scroll-mt-[140px]"
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
