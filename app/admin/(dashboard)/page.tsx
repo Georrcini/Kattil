@@ -77,6 +77,22 @@ const quickActions = [
 const statusBadge = (s: string): "success" | "warning" | "destructive" =>
   s === "active" ? "success" : s === "maintenance" ? "warning" : "destructive";
 
+const DEFAULT_CMS_DATA: CMSData = {
+  totalRooms: 0,
+  activeRooms: 0,
+  totalCities: 0,
+  amenitiesCount: 0,
+  galleryCount: 0,
+  mediaCount: 0,
+  blogsCount: 0,
+  publishedBlogsCount: 0,
+  faqsCount: 0,
+  roomCategories: [],
+  cmsModules: [],
+  recentRooms: [],
+  recentGallery: [],
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const [cms, setCms] = useState<CMSData | null>(null);
@@ -90,8 +106,8 @@ export default function AdminDashboard() {
       fetch("/api/admin/analytics").then((r) => r.json()),
     ])
       .then(([cmsRes, aRes]) => {
-        if (cmsRes.success) setCms(cmsRes.data);
-        if (aRes.success) setAnalytics(aRes.data);
+        if (cmsRes?.success) setCms(cmsRes.data);
+        if (aRes?.success) setAnalytics(aRes.data);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -99,7 +115,7 @@ export default function AdminDashboard() {
 
   if (loading) return <SkeletonDashboard />;
 
-  const d = cms!;
+  const d = cms || DEFAULT_CMS_DATA;
   const a = analytics;
   const occupancyPct = d.totalRooms > 0 ? Math.round((d.activeRooms / d.totalRooms) * 100) : 0;
   const weeklyClicks = a?.bookNowByDay.reduce((s, x) => s + x.clicks, 0) ?? 0;

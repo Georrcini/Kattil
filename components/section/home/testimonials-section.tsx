@@ -307,34 +307,21 @@ export default function TestimonialsSection() {
               ))}
             </div>
 
-            {/* Navigation Arrow Buttons (Desktop) */}
-            <div className="flex justify-center items-center gap-3 mt-10">
-              <button
-                type="button"
-                onClick={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
-                disabled={activeIndex === 0}
-                aria-label="Previous reviews page"
-                className={`w-11 h-11 rounded-[14px] flex items-center justify-center transition-all duration-200 active:scale-95 ${
-                  activeIndex > 0
-                    ? "bg-[#EDF5E4] text-[#526442] hover:bg-[#DCEAC8] border border-[#526442]/20 cursor-pointer shadow-xs"
-                    : "bg-[#EDF5E4]/40 text-[#A3B596] border border-black/[0.04] cursor-not-allowed"
-                }`}
-              >
-                <ArrowLeft className="w-5 h-5 stroke-[2.2]" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveIndex((prev) => Math.min(TESTIMONIALS_DATA.length - 1, prev + 1))}
-                disabled={activeIndex === TESTIMONIALS_DATA.length - 1}
-                aria-label="Next reviews page"
-                className={`w-11 h-11 rounded-[14px] flex items-center justify-center transition-all duration-200 active:scale-95 ${
-                  activeIndex < TESTIMONIALS_DATA.length - 1
-                    ? "bg-[#EDF5E4] text-[#526442] hover:bg-[#DCEAC8] border border-[#526442]/20 cursor-pointer shadow-xs"
-                    : "bg-[#EDF5E4]/40 text-[#A3B596] border border-black/[0.04] cursor-not-allowed"
-                }`}
-              >
-                <ArrowRight className="w-5 h-5 stroke-[2.2]" />
-              </button>
+            {/* Pagination Dots (Desktop) */}
+            <div className="flex justify-center items-center gap-2.5 mt-12">
+              {TESTIMONIALS_DATA.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setActiveIndex(i)}
+                  aria-label={`Go to testimonial page ${i + 1}`}
+                  className={`rounded-full transition-all duration-300 cursor-pointer ${
+                    activeIndex === i
+                      ? "w-2.5 h-2.5 bg-[#8EA980] scale-110"
+                      : "w-2.5 h-2.5 bg-[#D1D5DB] hover:bg-gray-400"
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </div>
